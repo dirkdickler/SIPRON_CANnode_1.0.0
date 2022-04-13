@@ -249,23 +249,16 @@ void Read_DIPAdress(u8 *CANadresa)
 	for (u8 i = 0; i < pocetADR; i++)
 	{
 		ADR[i].zmena = Input_digital_filtering(&ADR[i], filterTime_DI);
-		if (ADR[i].zmena == true)
-		{
-			if (ADR[i].input == true)
 
-				bolaZmenaVstupu |= ADR[i].zmena;
-		}
+		if (ADR[i].input == false)
+
+			bolaZmenaVstupu |= ADR[i].zmena;
 	}
 
 	if (bolaZmenaVstupu == true)
 	{
 		log_i("-hlasi ze mam zmenu na vstupoch....");
 	}
-
-	// for (u8 u = 0; u < pocetDIN; u++) //toto musi by tu na konci funkcie lebo to nastavi ze aktualny do predchoziho stavu
-	// {
-	// 	DIN[u].input_prew = DIN[u].input;
-	// }
 }
 
 void System_init(void)
