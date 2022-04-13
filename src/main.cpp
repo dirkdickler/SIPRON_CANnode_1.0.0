@@ -78,8 +78,10 @@ VSTUP_t ADR[pocetADR];
 
 char TX_BUF[TX_RX_MAX_BUF_SIZE];
 static u8 CANadresa = 0;
-CAN_device_t CAN_cfg;			// CAN Config
-const int rx_queue_size = 10; // Receive Queue size
+CAN_device_t CAN_cfg;				 // CAN Config
+unsigned long previousMillis = 0; // will store last time a CAN Message was send
+const int interval = 1000;			 // interval at which send CAN Messages (milliseconds)
+const int rx_queue_size = 10;		 // Receive Queue size
 //------------------------------------------------------------------------------------------------------------------
 
 /**********************************************************
@@ -124,7 +126,7 @@ void setup()
 	NacitajEEPROM_setting();
 
 	// WiFi_init();    //este si odkomentuj  //WiFi_connect_sequencer(); v 10 sek loop
-	configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
+	//configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
 
 	timer_1ms.start();
 	timer_10ms.start();
@@ -137,24 +139,79 @@ void setup()
 	// RS485 musis spustit az tu, lebo ak ju das hore a ESP ceka na konnect wifi, a pridu nejake data na RS485, tak FreeRTOS =RESET  asi overflow;
 	// Serial1.begin(9600);
 
-	CAN_cfg.speed = CAN_SPEED_125KBPS;
-	CAN_cfg.tx_pin_id = GPIO_NUM_5;//CAN_TxD;
-	CAN_cfg.rx_pin_id = GPIO_NUM_4;//CAN_RxD;
+	CAN_cfg.speed = CAN_SPEED_200KBPS;
+	CAN_cfg.tx_pin_id = GPIO_NUM_34; // CAN_TxD;
+	CAN_cfg.rx_pin_id = GPIO_NUM_33; // CAN_RxD;
 	CAN_cfg.rx_queue = xQueueCreate(rx_queue_size, sizeof(CAN_frame_t));
 	// Init CAN Module
-	ESP32Can.CANInit();
+	int rett = ESP32Can.CANInit();
+	log_i("CAN init vratilo: %i", rett);
 }
 
 void loop()
 {
 	esp_task_wdt_reset();
-	ws.cleanupClients();
+	//ws.cleanupClients();
 	// AsyncElegantOTA.loop();
 	timer_1ms.update();
 	timer_10ms.update();
 	timer_100ms.update();
 	timer_1sek.update();
 	timer_10sek.update();
+
+	CAN_frame_t rx_frame;
+
+	unsigned long currentMillis = millis();
+
+	// Receive next CAN frame from queue
+	if (xQueueReceive(CAN_cfg.rx_queue, &rx_frame, 3 * portTICK_PERIOD_MS) == pdTRUE)
+	{
+
+		if (rx_frame.FIR.B.FF == CAN_frame_std)
+		{
+			printf("New standard frame");
+		}
+		else
+		{
+			printf("New extended frame");
+		}
+
+		if (rx_frame.FIR.B.RTR == CAN_RTR)
+		{
+			printf(" RTR from 0x%08X, DLC %d\r\n", rx_frame.MsgID, rx_frame.FIR.B.DLC);
+		}
+		else
+		{
+			printf(" from 0x%08X, DLC %d, Data ", rx_frame.MsgID, rx_frame.FIR.B.DLC);
+			for (int i = 0; i < rx_frame.FIR.B.DLC; i++)
+			{
+				printf("0x%02X ", rx_frame.data.u8[i]);
+			}
+			printf("\n");
+		}
+	}
+	// Send CAN Message
+
+	if (currentMillis - previousMillis >= interval)
+	{
+		log_i("CAN frame na odoslanie");
+		previousMillis = currentMillis;
+		CAN_frame_t tx_frame;
+		tx_frame.FIR.B.FF = CAN_frame_std;
+		tx_frame.MsgID = 0x001;
+		tx_frame.FIR.B.DLC = 8;
+		tx_frame.data.u8[0] = 0x00;
+		tx_frame.data.u8[1] = 0x01;
+		tx_frame.data.u8[2] = 0x02;
+		tx_frame.data.u8[3] = 0x03;
+		tx_frame.data.u8[4] = 0x04;
+		tx_frame.data.u8[5] = 0x05;
+		tx_frame.data.u8[6] = 0x06;
+		tx_frame.data.u8[7] = 0x07;
+		log_i("samotne CAN frame na odoslanie");
+		int rett = ESP32Can.CANWriteFrame(&tx_frame);
+		log_i("CAN frame na odoslanie vratilo: %i", rett);
+	}
 }
 
 void Loop_1ms()
