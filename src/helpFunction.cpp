@@ -9,8 +9,8 @@
 #include "main.h" //kvolu u8,u16..
 
 #include "Pin_assigment.h"
-#include "WizChip_my_API.h"
-#include "Middleware\Ethernet\wizchip_conf.h"
+//#include "WizChip_my_API.h"
+//#include "Middleware\Ethernet\wizchip_conf.h"
 #include "index.html"
 #include "HelpFunction.h"
 
@@ -212,27 +212,27 @@ void ScanInputs(void)
 		DIN[i].zmena = Input_digital_filtering(&DIN[i], filterTime_DI);
 		if (DIN[i].zmena == true)
 		{
-			LogBuffer.zaznam.PosixTime = rtc.getEpoch();
-			LogBuffer.zaznam.zaznamID = IDzaznamu_IN1 + i;
-			LogBuffer.zaznam.pocetDat = 1;
+			//LogBuffer.zaznam.PosixTime = rtc.getEpoch();
+			//LogBuffer.zaznam.zaznamID = IDzaznamu_IN1 + i;
+			//LogBuffer.zaznam.pocetDat = 1;
 
 			if (DIN[i].input == true)
 			{
 				DIN[i].counter++;
-				LogBuffer.zaznam.data[0] = 1;
+				//LogBuffer.zaznam.data[0] = 1;
 			} // tu si incrementuju citac impulzu
 			else
 			{
-				LogBuffer.zaznam.data[0] = 0;
+				//LogBuffer.zaznam.data[0] = 0;
 			}
-			UlozZaznam(&LogBuffer);
+			//UlozZaznam(&LogBuffer);
 			bolaZmenaVstupu |= DIN[i].zmena;
 		}
 	}
 
 	if (bolaZmenaVstupu == true)
 	{
-		ComDebugln("[ScanInputs] hlasi ze mam zmenu na vstupoch....");
+		log_i("hlasi ze mam zmenu na vstupoch....");
 	}
 
 	// for (u8 u = 0; u < pocetDIN; u++) //toto musi by tu na konci funkcie lebo to nastavi ze aktualny do predchoziho stavu
@@ -688,13 +688,7 @@ void OdosliStrankeVytapeniData(void)
 	ws.textAll(jsonString);
 }
 
-void TCP_debugMsg(String sprava)
-{
-#ifdef TCP_debug
-	sprava.toCharArray(TX_BUF, TX_RX_MAX_BUF_SIZE, 0);
-	send(TCP_10001_socket, (u8 *)TX_BUF, strlen(TX_BUF));
-#endif
-}
+
 
 uint8_t VypocitajSumuBuffera(uint8_t *buffer, uint16_t kolko)
 {
@@ -752,17 +746,17 @@ bool KontrolujBufferZdaObsaujeJSONdata(char JSONbuffer[])
 				}
 				// ComDebugln("-------------------------\n");
 
-				if (eth.mac[0] == strtol(argv[0], NULL, 16) &&
-					 eth.mac[1] == strtol(argv[1], NULL, 16) &&
-					 eth.mac[2] == strtol(argv[2], NULL, 16) &&
-					 eth.mac[3] == strtol(argv[3], NULL, 16) &&
-					 eth.mac[4] == strtol(argv[4], NULL, 16) &&
-					 eth.mac[5] == strtol(argv[5], NULL, 16))
-				{
-					ComDebugln("Super JSON sa rovna mojej MAC adrese");
-					myTimer.socketCloseTimeout = 0; // tu je akoze dosiel JSON string kde je MAC
-					return true;
-				}
+				// if (eth.mac[0] == strtol(argv[0], NULL, 16) &&
+				// 	 eth.mac[1] == strtol(argv[1], NULL, 16) &&
+				// 	 eth.mac[2] == strtol(argv[2], NULL, 16) &&
+				// 	 eth.mac[3] == strtol(argv[3], NULL, 16) &&
+				// 	 eth.mac[4] == strtol(argv[4], NULL, 16) &&
+				// 	 eth.mac[5] == strtol(argv[5], NULL, 16))
+				// {
+				// 	ComDebugln("Super JSON sa rovna mojej MAC adrese");
+				// 	myTimer.socketCloseTimeout = 0; // tu je akoze dosiel JSON string kde je MAC
+				// 	return true;
+				// }
 			}
 			else if (myObject.hasOwnProperty("Cas"))
 			{
@@ -919,182 +913,3 @@ void Double2Bytes(double val, uint8_t *bytes_array)
 }
 
 /**/
-bool OdosliZaznamDosocketu(LOGBUFF_t *logBuffStruc)
-{
-	char locWorkBuff[250];
-	if (flg.PeriodickyOdosielajZaznamyzBuffera == true)
-	{
-		String sprava = VyberZaznam(logBuffStruc, false);
-		// ComDebugln("Toto idem poslat do Socketu");
-		// ComDebugln(sprava);
-		sprava.toCharArray(locWorkBuff, sizeof(locWorkBuff), 0);
-		i32 ret = send(TCP_10001_socket, (u8 *)locWorkBuff, strlen(locWorkBuff));
-		// ComDebug(String("Do  TCP soketu sa malo poslat  bytes: ") + strlen(locWorkBuff) + String(" a poslalo sa:") + ret);
-		if (strlen(locWorkBuff) == ret)
-		{
-			// ComDebug("Odoslanie dat do TCP socketu bolo OK, tak zaznam z buffer mazem");
-			// ComDebugln(ret);
-			VyberZaznam(logBuffStruc, true); // zmazem zaznam
-			return true;
-		}
-		else
-		{
-			// ComDebug("Odoslanie dat do TCP socketu bolo NOK!!  zaznam necham v bufferi");
-		}
-	}
-	return false;
-}
-
-bool UlozZaznam(LOGBUFF_t *logBuffStruc)
-{
-	if ((((logBuffStruc->zaznam.pocetDat + 5) + logBuffStruc->BufferIndex) >= maxVelkostLogBuffera) ||
-		 (logBuffStruc->PocetZaznamov >= maxPocetZaznamov))
-	{
-		ComDebugln(String("Pozor plny buffer, posuvam zaznami pred je pocet") + logBuffStruc->PocetZaznamov + String("index v bufferi:") + logBuffStruc->BufferIndex);
-		VyberZaznam(logBuffStruc, true);
-		ComDebugln(String("Po posunutije pocet") + logBuffStruc->PocetZaznamov + String("index v bufferi:") + logBuffStruc->BufferIndex);
-	}
-
-	logBuffStruc->AdresList[logBuffStruc->PocetZaznamov] = logBuffStruc->BufferIndex;
-
-	uint8_t *ptrBuffer;
-	long epoch = logBuffStruc->zaznam.PosixTime;
-	logBuffStruc->Buffer[logBuffStruc->BufferIndex++] = epoch & 0xff;
-	logBuffStruc->Buffer[logBuffStruc->BufferIndex++] = epoch >> 8;
-	logBuffStruc->Buffer[logBuffStruc->BufferIndex++] = epoch >> 16;
-	logBuffStruc->Buffer[logBuffStruc->BufferIndex++] = epoch >> 24;
-	logBuffStruc->Buffer[logBuffStruc->BufferIndex++] = logBuffStruc->zaznam.zaznamID;
-
-	ptrBuffer = (uint8_t *)logBuffStruc->zaznam.data;
-	for (uint8_t i = 0; i < logBuffStruc->zaznam.pocetDat; i++)
-	{
-		logBuffStruc->Buffer[logBuffStruc->BufferIndex++] = ptrBuffer[i];
-	}
-
-	logBuffStruc->PocetZaznamov++;
-	ComDebugln(String("Ukladam zaznam:") + logBuffStruc->PocetZaznamov + String("index v bufferi:") + logBuffStruc->BufferIndex);
-	return true;
-}
-
-String VyberZaznam(LOGBUFF_t *logBuffStruc, bool aZrovnaZaznamZmaz)
-{
-	static u8 millisekundy = 0;
-	uint16_t PocetBytesZaznamu = logBuffStruc->AdresList[1] - logBuffStruc->AdresList[0];
-	if (logBuffStruc->PocetZaznamov == 1)
-	{
-		PocetBytesZaznamu = logBuffStruc->BufferIndex;
-	}
-	char locBuff[110];
-	memset(locBuff, 0, sizeof(locBuff));
-	for (uint16_t i = 0; i < PocetBytesZaznamu; i++)
-	{
-		locBuff[i] = logBuffStruc->Buffer[i];
-	}
-	// printf("Spracuvam zaznam co ma pocet bytes:%u  a to :%s\r\n", PocetBytesZaznamu, locBuff);
-
-	if (aZrovnaZaznamZmaz == true)
-	{
-		memcpy(&logBuffStruc->Buffer[0], &logBuffStruc->Buffer[PocetBytesZaznamu], (logBuffStruc->BufferIndex - PocetBytesZaznamu));
-		memcpy(&logBuffStruc->AdresList[0], &logBuffStruc->AdresList[1], (logBuffStruc->PocetZaznamov * 2));
-		logBuffStruc->AdresList[0] = 0;
-		logBuffStruc->PocetZaznamov--;
-		for (uint16_t i = 1; i < logBuffStruc->PocetZaznamov; i++)
-		{
-			logBuffStruc->AdresList[i] -= PocetBytesZaznamu;
-		}
-		logBuffStruc->BufferIndex -= PocetBytesZaznamu;
-
-		// ComDebugln(String("Vyber zaznam -s MAZANIM!! zosrava zaznamu:") + logBuffStruc->PocetZaznamov);
-	}
-	else
-	{
-		// ComDebugln("Vyber zaznam BEZ zmazania");
-	}
-	long temp = locBuff[3];
-	temp <<= 8; // stol(epoch);
-	temp += locBuff[2];
-	temp <<= 8;
-	temp += locBuff[1];
-	temp <<= 8;
-	temp += locBuff[0];
-
-	String StrCas;
-	StrCas = String("") + year(temp) +
-				String(":") + month(temp) +
-				String(":") + day(temp) +
-				String(":") + hour(temp) +
-				String(":") + minute(temp) +
-				String(":") + second(temp) +
-				String(":") + millisekundy;
-	if (++millisekundy == 100)
-	{
-		millisekundy = 0;
-	}
-
-	String IDzazna = "NOK";
-	String StrVall = "---";
-	float Val1, Val2;
-	switch (locBuff[4])
-	{
-	case IDzaznamu_SCT_prud:
-	{
-		IDzazna = "AI1";
-		Val1 = Read_Float_Value(&locBuff[5]);
-		Val2 = Read_Float_Value(&locBuff[9]);
-		StrVall = String(Val1, 1) + String(":") + String(Val2, 1);
-	}
-	break;
-	case IDzaznamu_IN1:
-	{
-		IDzazna = "IN1";
-		u8 Vall = locBuff[5];
-		StrVall = String(Vall);
-	}
-	break;
-	case IDzaznamu_IN2:
-	{
-		IDzazna = "IN2";
-		u8 Vall = locBuff[5];
-		StrVall = String(Vall);
-	}
-	break;
-	case IDzaznamu_IN3:
-	{
-		IDzazna = "IN3";
-		u8 Vall = locBuff[5];
-		StrVall = String(Vall);
-	}
-	break;
-	case IDzaznamu_IN4:
-	{
-		IDzazna = "IN4";
-		u8 Vall = locBuff[5];
-		StrVall = String(Vall);
-	}
-	break;
-	case IDzaznamu_SCT_test:
-	{
-		IDzazna = "Test1";
-		Val1 = Read_Float_Value(&locBuff[5]);
-		StrVall = String(Val1, 1);
-	}
-	break;
-
-	default:
-		break;
-	}
-
-	JSONVar tempObject;
-	tempObject["Cas"] = StrCas;
-	tempObject[IDzazna] = StrVall;
-
-	String sprava;
-	sprava = JSON.stringify(tempObject);
-	sprava += String("\r\n");
-	return sprava;
-}
-
-u16 VratPocetZaznamu(LOGBUFF_t *logBuffStruc)
-{
-	return logBuffStruc->PocetZaznamov;
-}

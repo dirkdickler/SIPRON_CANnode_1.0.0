@@ -2,14 +2,14 @@
 #define __MAIN_H
 
 #include <Arduino.h>
-#include "SPI.h"
+//#include "SPI.h"
 #include "define.h"
 //#include <ESPAsyncWebServer.h>
 #include "constants.h"
-#include "WizChip_my_API.h"
+//#include "WizChip_my_API.h"
 #include <ESP32Time.h>
 #include <Arduino_JSON.h>
-#include <Wire.h>
+//#include <Wire.h>
 //#include "pcf8563.h"
 
 typedef int32_t i32;
@@ -114,8 +114,7 @@ extern IPAddress gateway;
 extern IPAddress subnet;
 extern IPAddress primaryDNS;
 extern IPAddress secondaryDNS;
-extern wiz_NetInfo eth;
-extern SPIClass SDSPI;
+//extern SPIClass SDSPI;
 extern ESP32Time rtc;
 extern JSONVar myObject, myObject2, ObjDatumCas, ObjTopeni, JSON_DebugMsg;
 extern LOGBUFF_t LogBuffer;

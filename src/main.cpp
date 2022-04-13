@@ -27,6 +27,8 @@
 //#include "Middleware\Ethernet\WizChip_my_API.h"
 #include "esp_log.h"
 
+#include <ESP32CAN.h>
+#include <CAN_config.h>
 
 // Replace with your network credentials
 // const char* ssid = "Grabcovi";
@@ -50,7 +52,7 @@ Ticker timer_1sek(Loop_1sek, 1000, 0, MILLIS);
 Ticker timer_10sek(Loop_10sek, 10000, 0, MILLIS);
 
 ESP32Time rtc;
-//PCF8563_Class PCFrtc;
+// PCF8563_Class PCFrtc;
 IPAddress local_IP(192, 168, 1, 14);
 IPAddress gateway(192, 168, 1, 1);
 IPAddress subnet(255, 255, 255, 0);
@@ -76,6 +78,8 @@ VSTUP_t ADR[pocetADR];
 
 char TX_BUF[TX_RX_MAX_BUF_SIZE];
 static u8 CANadresa = 0;
+CAN_device_t CAN_cfg;			// CAN Config
+const int rx_queue_size = 10; // Receive Queue size
 //------------------------------------------------------------------------------------------------------------------
 
 /**********************************************************
@@ -132,6 +136,13 @@ void setup()
 
 	// RS485 musis spustit az tu, lebo ak ju das hore a ESP ceka na konnect wifi, a pridu nejake data na RS485, tak FreeRTOS =RESET  asi overflow;
 	// Serial1.begin(9600);
+
+	CAN_cfg.speed = CAN_SPEED_125KBPS;
+	CAN_cfg.tx_pin_id = GPIO_NUM_5;//CAN_TxD;
+	CAN_cfg.rx_pin_id = GPIO_NUM_4;//CAN_RxD;
+	CAN_cfg.rx_queue = xQueueCreate(rx_queue_size, sizeof(CAN_frame_t));
+	// Init CAN Module
+	ESP32Can.CANInit();
 }
 
 void loop()
@@ -179,21 +190,18 @@ void Loop_1sek(void)
 	{
 		digitalWrite(LED_pin, 1);
 	}
-
-	
 }
 
 void Loop_10sek(void)
 {
 	static u8_t loc_cnt_10sek = 0;
-	//String sprava = String("\r\n[10sek Loop]  Mam Loop 10 sek....") + rtc.getDateTime(true);
-	//Serial.println(sprava);
-	
+	// String sprava = String("\r\n[10sek Loop]  Mam Loop 10 sek....") + rtc.getDateTime(true);
+	// Serial.println(sprava);
 
 	{
 		float testVal = 23.456f;
 		float testVal2 = 34.567f;
-		log_i("Float hodnoty 1: %f    2:%fP log I",testVal, testVal2);
+		log_i("Float hodnoty 1: %f    2:%fP log I", testVal, testVal2);
 	}
 
 	// WiFi_connect_sequencer();
