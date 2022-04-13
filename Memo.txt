@@ -1,9 +1,9 @@
-
+https://github.com/miwagner/ESP32-Arduino-CAN
 Pre CAN na ESP32 S2 si musim includovat 
 #include "soc/periph_defs.h"  kde riesis problem s esp_intr_alloc(ETS_CAN_INTR_SOURCE, 0, CAN_isr, NULL, NULL); 
 prepisem n  esp_intr_alloc(ETS_TWAI_INTR_SOURCE, 0, CAN_isr, NULL, NULL);
 
 Prepis:
- DPORT_CAN_CLK_EN  prepis na DPORT_TWAI_CLK_EN
- DPORT_CAN_RST na DPORT_TWAI_RST
- CAN_TX_IDX a CAN_RX_IDX   na TWAI_TX_IDX a TWAI_RX_IDX
+ DPORT_CAN_CLK_EN  prepis na DPORT_TWAI_CLK_EN  (system_reg.h)
+ DPORT_CAN_RST na DPORT_TWAI_RST              (system_reg.h)
+ CAN_TX_IDX a CAN_RX_IDX   na TWAI_TX_IDX a TWAI_RX_IDX  (gpio_sig_map.h)
