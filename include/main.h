@@ -106,6 +106,7 @@ extern AsyncWebServer server;
 extern AsyncWebSocket ws;
 
 extern VSTUP_t DIN[pocetDIN];
+extern VSTUP_t ADR[pocetADR];
 extern char NazovSiete[30];
 extern char Heslo[30];
 extern IPAddress local_IP;

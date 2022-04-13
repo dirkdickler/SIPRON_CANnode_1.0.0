@@ -12,27 +12,23 @@
 #include <EEPROM.h>
 #include <TimeLib.h>
 #include <Wire.h>
-#include "pcf8563.h"
+//#include "pcf8563.h"
 #include "index.html"
 #include "main.h"
 #include "define.h"
 #include "constants.h"
-#include "FS.h"
-#include "SD.h"
-#include "SPI.h"
-#include <SoftwareSerial.h>
-#include <ESP32Time.h>
+// #include "FS.h"
+// #include "SD.h"
+//#include "SPI.h"
+//#include <SoftwareSerial.h>
+//#include <ESP32Time.h>
 #include "HelpFunction.h"
 #include "Pin_assigment.h"
-#include "Middleware\Ethernet\WizChip_my_API.h"
+//#include "Middleware\Ethernet\WizChip_my_API.h"
 #include "esp_log.h"
 
 //#include "sdusb.h"
 //#include "mscusb.h"
-
-#define ENCODER1 2
-#define ENCODER2 3
-volatile long int encoder_pos = 0;
 
 // Replace with your network credentials
 // const char* ssid = "Grabcovi";
@@ -55,12 +51,6 @@ Ticker timer_100ms(Loop_100ms, 300, 0, MILLIS);
 Ticker timer_1sek(Loop_1sek, 1000, 0, MILLIS);
 Ticker timer_10sek(Loop_10sek, 10000, 0, MILLIS);
 
-SoftwareSerial swSer(14, 12, false, 256);
-char swTxBuffer[16];
-char swRxBuffer[16];
-
-SPIClass SDSPI(HSPI);
-
 ESP32Time rtc;
 PCF8563_Class PCFrtc;
 IPAddress local_IP(192, 168, 1, 14);
@@ -80,14 +70,15 @@ bool RTC_cas_OK = false;			  // ze mam RTC fakt nastaveny bud z interneru, alebo
 
 char gloBuff[200];
 bool LogEnebleWebPage = false;
-
 FLAGS_t flg;
 LOGBUFF_t LogBuffer;
 
 VSTUP_t DIN[pocetDIN];
-char TX_BUF[TX_RX_MAX_BUF_SIZE];
-//------------------------------------------------------------------------------------------------------------------
+VSTUP_t ADR[pocetADR];
 
+char TX_BUF[TX_RX_MAX_BUF_SIZE];
+static u8 CANadresa = 0;
+//------------------------------------------------------------------------------------------------------------------
 
 /**********************************************************
  ***************        SETUP         **************
@@ -102,12 +93,11 @@ void setup()
 	ESP_LOGW("", "est ESLP log W");
 	ESP_LOGI("TEST SP log I", "storage usedd: %lld/%lld", 23, 24);
 	log_i("TEST SP log I", "storage usedd: %lld/%lld", 23, 24);
-  
+
 	// attachInterrupt(digitalPinToInterrupt(ENCODER1), encoder, RISING);
 	// pinMode(ENCODER1, INPUT);
 	// pinMode(ENCODER2, INPUT);
 
-   
 	ESPinfo();
 
 	myObject["Parameter"]["gateway"]["value"] = " 11:22 Strezda";
@@ -144,9 +134,6 @@ void setup()
 
 	// RS485 musis spustit az tu, lebo ak ju das hore a ESP ceka na konnect wifi, a pridu nejake data na RS485, tak FreeRTOS =RESET  asi overflow;
 	// Serial1.begin(9600);
-
-	// swSer.begin(115200);
-	// swSer.println("");
 }
 
 void loop()
@@ -157,76 +144,18 @@ void loop()
 	timer_1ms.update();
 	timer_10ms.update();
 	timer_100ms.update();
-	timer_1sek.update(); 
-	timer_10sek.update(); 
+	timer_1sek.update();
+	timer_10sek.update();
 }
 
 void Loop_1ms()
 {
-	
 }
 
 void Loop_10ms()
 {
-	static uint8_t TimeOut_RXdata = 0;	 // musi byt static lebo sem skaces z Loop
-	static uint16_t KolkkoNplnenych = 0; // musi byt static lebo sem skaces z Loop
-	static char budd[250];					 // musi byt static lebo sem skaces z Loop
-
-	uint16_t aktualny;
-	char temp[200];
- 
-	aktualny = 0;
-	aktualny = Serial1.available();
-	if (aktualny)
-	{
-
-		// Serial2.readBytes (temp, aktualny);
-		for (uint16_t i = 0; i < aktualny; i++)
-		{
-			if ((KolkkoNplnenych + aktualny) < sizeof(budd))
-			{
-				budd[KolkkoNplnenych + i] = Serial1.read();
-			}
-			else
-			{
-				Serial1.read();
-			}
-		}
-		KolkkoNplnenych += aktualny;
-		TimeOut_RXdata = 5;
-	}
-
-	if (TimeOut_RXdata)
-	{
-		if (--TimeOut_RXdata == 0)
-		{
-			{
-				sprintf(temp, "[RS485] doslo:%u a to %s\r\n", KolkkoNplnenych, budd);
-				// DebugMsgToWebSocket(temp);
-				// Serial.printf(temp);
-
-				AIR_PACKET_t *loc_paket;
-				loc_paket = (AIR_PACKET_t *)budd;
-
-				sprintf(temp, "[RS485]  DST adresa je:%u\r\n", loc_paket->DSTadress);
-				// DebugMsgToWebSocket(temp);
-				// Serial.printf(temp);
-
-				sprintf(temp, "[RS485] Mam adresu %u a idem ulozit data z RS485\r\n", loc_paket->SCRadress);
-				// DebugMsgToWebSocket(temp);
-
-				if (loc_paket->SCRadress == 10)
-				{
-					//	OdosliStrankeVytapeniData();
-				}
-
-				memset(budd, 0, sizeof(budd));
-				KolkkoNplnenych = 0;
-			}
-		}
-	}
-
 	ScanInputs();
+	Read_DIPAdress(&CANadresa);
 }
 
 void Loop_100ms(void)
@@ -236,28 +165,25 @@ void Loop_100ms(void)
 void Loop_1sek(void)
 {
 	// ComDebug("[1sek Loop]  mam 1 sek....  ");
-	String sprava;// = rtc.getTime("\r\n[%H:%M:%S] karta a toto cas z PCF8563:");
-	sprava += PCFrtc.formatDateTime(PCF_TIMEFORMAT_YYYY_MM_DD_H_M_S);
-	// unsigned long start = micros();
+	String sprava; // = rtc.getTime("\r\n[%H:%M:%S] karta a toto cas z PCF8563:");
+						// unsigned long start = micros();
 	// sprava += PCFrtc.formatDateTime(PCF_TIMEFORMAT_YYYY_MM_DD_H_M_S);
 	// unsigned long end = micros();
 	// unsigned long delta = end - start;
 	// Serial.print("DELTA PCF8563: ");
 	// Serial.println(delta);
 
-	if (digitalRead(SD_CD_pin) == LOW)
+	if (digitalRead(LED_pin) == 1)
 	{
-		// sprintf(TX_BUF, "[1sek Loop]  karta zasunota\r\n");
-		sprava += " Zasunuta";
+		digitalWrite(LED_pin, 0);
 	}
 	else
 	{
-		// sprintf(TX_BUF, "[1sek Loop]  karta Vysunuta\r\n");
-		sprava += " Vysunuta";
+		digitalWrite(LED_pin, 1);
 	}
 
 	char tt[100];
-	//sprintf(tt, "   SCTprud: %uA\r\n", SCT_prud_0);
+	// sprintf(tt, "   SCTprud: %uA\r\n", SCT_prud_0);
 	sprava += tt;
 	ComDebugln(sprava);
 	// TCP_debugMsg(sprava);
@@ -274,7 +200,7 @@ void Loop_1sek(void)
 	}
 	// ComDebug("RTC cas cez func rtc.getTime: ");
 	// ComDebugln(rtc.getTime("%A, %B %d %Y %H:%M:%S"));
-	//MyRTC_cas = rtc.getTimeStruct();
+	// MyRTC_cas = rtc.getTimeStruct();
 	// Serial.print("[1sek Loop]  free Heap je:");
 	// Serial.println(ESP.getFreeHeap());
 
@@ -482,4 +408,3 @@ void ESPinfo(void)
 	Serial.printf(" Free PSRAM po uvolneni : %d\r\n", ESP.getFreePsram()); // log_d("Free PSRAM: %d", ESP.getFreePsram());
 	Serial.println("\r\n*******************************************************************");
 }
-

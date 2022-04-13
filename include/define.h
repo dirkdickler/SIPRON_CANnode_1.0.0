@@ -29,7 +29,7 @@
 #define input8 7
 #define pocetDIN 8
 #define filterTime_DI 3  //10ms loop
-
+#define pocetADR 7
 #define WDT_TIMEOUT 5
 #define firmware "ver20210614_1beta"
 

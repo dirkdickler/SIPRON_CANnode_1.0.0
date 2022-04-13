@@ -171,9 +171,6 @@ bool SkontrolujCiJePovolenyDenvTyzdni(u8 Obraz, tm *timeInfoPRT)
 	return false;
 }
 
-
-
-
 static bool Input_digital_filtering(VSTUP_t *input_struct, uint16_t filterCas)
 {
 	if (digitalRead(input_struct->pin) == LOW)
@@ -210,7 +207,6 @@ void ScanInputs(void)
 	// Serial.println("[ScanInputs] begin..");
 	bool bolaZmenaVstupu = false;
 
-	
 	for (u8 i = 0; i < pocetDIN; i++)
 	{
 		DIN[i].zmena = Input_digital_filtering(&DIN[i], filterTime_DI);
@@ -244,9 +240,37 @@ void ScanInputs(void)
 	// 	DIN[u].input_prew = DIN[u].input;
 	// }
 }
+
+void Read_DIPAdress(u8 *CANadresa)
+{
+	// Serial.println("[ScanInputs] begin..");
+	bool bolaZmenaVstupu = false;
+
+	for (u8 i = 0; i < pocetADR; i++)
+	{
+		ADR[i].zmena = Input_digital_filtering(&ADR[i], filterTime_DI);
+		if (ADR[i].zmena == true)
+		{
+			if (ADR[i].input == true)
+
+				bolaZmenaVstupu |= ADR[i].zmena;
+		}
+	}
+
+	if (bolaZmenaVstupu == true)
+	{
+		log_i("-hlasi ze mam zmenu na vstupoch....");
+	}
+
+	// for (u8 u = 0; u < pocetDIN; u++) //toto musi by tu na konci funkcie lebo to nastavi ze aktualny do predchoziho stavu
+	// {
+	// 	DIN[u].input_prew = DIN[u].input;
+	// }
+}
+
 void System_init(void)
 {
-	Serial.print("[Func:System_init]  begin..");
+	log_i("[Func:System_init]  begin..");
 	DIN[input1].pin = DI1_pin;
 	DIN[input2].pin = DI2_pin;
 	DIN[input3].pin = DI3_pin;
@@ -255,31 +279,38 @@ void System_init(void)
 	DIN[input2].pin = DI2_pin;
 	DIN[input3].pin = DI3_pin;
 	DIN[input4].pin = DI4_pin;
-	
-
-
+	ADR[0].pin = Adr1_pin;
+	ADR[1].pin = Adr2_pin;
+	ADR[2].pin = Adr3_pin;
+	ADR[3].pin = Adr4_pin;
+	ADR[4].pin = Adr5_pin;
+	ADR[5].pin = Adr6_pin;
+	ADR[6].pin = Adr7_pin;
 
 	pinMode(DI1_pin, INPUT_PULLUP);
 	pinMode(DI2_pin, INPUT_PULLUP);
 	pinMode(DI3_pin, INPUT_PULLUP);
 	pinMode(DI4_pin, INPUT_PULLUP);
-	pinMode(SD_CD_pin, INPUT_PULLUP);
-	pinMode(WIZ_INT_pin, INPUT_PULLUP);
-	pinMode(Joy_up_pin, INPUT_PULLUP);
-	pinMode(Joy_dn_pin, INPUT_PULLUP);
-	pinMode(Joy_Butt_pin, INPUT_PULLUP);
-	pinMode(Joy_left_pin, INPUT_PULLUP);
-	pinMode(Joy_right_pin, INPUT_PULLUP);
+	pinMode(Adr1_pin, INPUT_PULLUP);
+	pinMode(Adr2_pin, INPUT_PULLUP);
+	pinMode(Adr3_pin, INPUT_PULLUP);
+	pinMode(Adr4_pin, INPUT_PULLUP);
+	pinMode(Adr5_pin, INPUT_PULLUP);
+	pinMode(Adr6_pin, INPUT_PULLUP);
+	pinMode(Adr7_pin, INPUT_PULLUP);
+	pinMode(LED_pin, OUTPUT);
+	pinMode(DO1_pin, OUTPUT);
+	pinMode(DO2_pin, OUTPUT);
+	pinMode(DO1_pin, OUTPUT);
+	pinMode(DO2_pin, OUTPUT);
+	pinMode(DO3_pin, OUTPUT);
+	pinMode(DO4_pin, OUTPUT);
+	pinMode(DO5_pin, OUTPUT);
+	pinMode(DO6_pin, OUTPUT);
+	pinMode(DO7_pin, OUTPUT);
+	pinMode(DO8_pin, OUTPUT);
 
-	RTC_Date Pccc;
-	Wire.begin(18, 17);
-	PCFrtc.begin();
-	// PCFrtc.setDateTime(2019, 4, 1, 12, 33, 59);
-	Pccc = PCFrtc.getDateTime();
-	rtc.setTime(Pccc.second, Pccc.minute, Pccc.hour, Pccc.day, Pccc.month, Pccc.year); // 17th Jan 2021 15:24:30
-
-	
-	Serial.print("[Func:System_init]  end..");
+	log_i("[Func:System_init]  end..");
 }
 
 int8_t NacitajEEPROM_setting(void)
