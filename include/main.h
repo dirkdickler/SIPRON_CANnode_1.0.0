@@ -10,7 +10,7 @@
 #include <ESP32Time.h>
 #include <Arduino_JSON.h>
 #include <Wire.h>
-#include "pcf8563.h"
+//#include "pcf8563.h"
 
 typedef int32_t i32;
 typedef int16_t i16;
@@ -123,7 +123,7 @@ extern bool Internet_CasDostupny;
 extern bool RTC_cas_OK;
 extern char TX_BUF[];
 extern u16 AN_Pot1_Raw;
-extern PCF8563_Class PCFrtc;
+//extern PCF8563_Class PCFrtc;
 
 void Loop_1ms(void);
 void Loop_10ms(void);

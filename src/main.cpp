@@ -52,7 +52,7 @@ Ticker timer_1sek(Loop_1sek, 1000, 0, MILLIS);
 Ticker timer_10sek(Loop_10sek, 10000, 0, MILLIS);
 
 ESP32Time rtc;
-PCF8563_Class PCFrtc;
+//PCF8563_Class PCFrtc;
 IPAddress local_IP(192, 168, 1, 14);
 IPAddress gateway(192, 168, 1, 1);
 IPAddress subnet(255, 255, 255, 0);
