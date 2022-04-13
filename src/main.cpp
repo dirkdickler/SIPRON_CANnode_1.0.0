@@ -27,8 +27,9 @@
 //#include "Middleware\Ethernet\WizChip_my_API.h"
 #include "esp_log.h"
 
-#include <ESP32CAN.h>
-#include <CAN_config.h>
+#include <ACAN_ESP32.h>
+#include <ACAN_ESP32_CANRegisters.h>
+//#include <core_version.h> // For ARDUINO_ESP32_RELEASE
 
 // Replace with your network credentials
 // const char* ssid = "Grabcovi";
@@ -75,13 +76,10 @@ LOGBUFF_t LogBuffer;
 
 VSTUP_t DIN[pocetDIN];
 VSTUP_t ADR[pocetADR];
+u8 CANadresa = 0;
+static const uint32_t DESIRED_BIT_RATE = 125UL * 1000UL; // 125kb/s
 
 char TX_BUF[TX_RX_MAX_BUF_SIZE];
-static u8 CANadresa = 0;
-CAN_device_t CAN_cfg;				 // CAN Config
-unsigned long previousMillis = 0; // will store last time a CAN Message was send
-const int interval = 1000;			 // interval at which send CAN Messages (milliseconds)
-const int rx_queue_size = 10;		 // Receive Queue size
 //------------------------------------------------------------------------------------------------------------------
 
 /**********************************************************
@@ -126,7 +124,7 @@ void setup()
 	NacitajEEPROM_setting();
 
 	// WiFi_init();    //este si odkomentuj  //WiFi_connect_sequencer(); v 10 sek loop
-	//configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
+	// configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
 
 	timer_1ms.start();
 	timer_10ms.start();
@@ -139,78 +137,84 @@ void setup()
 	// RS485 musis spustit az tu, lebo ak ju das hore a ESP ceka na konnect wifi, a pridu nejake data na RS485, tak FreeRTOS =RESET  asi overflow;
 	// Serial1.begin(9600);
 
-	CAN_cfg.speed = CAN_SPEED_200KBPS;
-	CAN_cfg.tx_pin_id = GPIO_NUM_34; // CAN_TxD;
-	CAN_cfg.rx_pin_id = GPIO_NUM_33; // CAN_RxD;
-	CAN_cfg.rx_queue = xQueueCreate(rx_queue_size, sizeof(CAN_frame_t));
-	// Init CAN Module
-	int rett = ESP32Can.CANInit();
-	log_i("CAN init vratilo: %i", rett);
+	log_i("Configure ESP32 CAN");
+	ACAN_ESP32_Settings settings(DESIRED_BIT_RATE);
+	settings.mRequestedCANMode = ACAN_ESP32_Settings::LoopBackMode;
+	settings.mRxPin = GPIO_NUM_33; // Optional, default Tx pin is GPIO_NUM_4
+	settings.mTxPin = GPIO_NUM_34; // Optional, default Rx pin is GPIO_NUM_5
+	const uint32_t errorCode = ACAN_ESP32::can.begin(settings);
+	if (errorCode == 0)
+	{
+		Serial.print("Bit Rate prescaler: ");
+		Serial.println(settings.mBitRatePrescaler);
+		Serial.print("Time Segment 1:     ");
+		Serial.println(settings.mTimeSegment1);
+		Serial.print("Time Segment 2:     ");
+		Serial.println(settings.mTimeSegment2);
+		Serial.print("RJW:                ");
+		Serial.println(settings.mRJW);
+		Serial.print("Triple Sampling:    ");
+		Serial.println(settings.mTripleSampling ? "yes" : "no");
+		Serial.print("Actual bit rate:    ");
+		Serial.print(settings.actualBitRate());
+		Serial.println(" bit/s");
+		Serial.print("Exact bit rate ?    ");
+		Serial.println(settings.exactBitRate() ? "yes" : "no");
+		Serial.print("Distance            ");
+		Serial.print(settings.ppmFromDesiredBitRate());
+		Serial.println(" ppm");
+		Serial.print("Sample point:       ");
+		Serial.print(settings.samplePointFromBitStart());
+		Serial.println("%");
+		Serial.println("Configuration OK!");
+	}
+	else
+	{
+		Serial.print("Configuration error 0x");
+		Serial.println(errorCode, HEX);
+	}
 }
 
+static uint32_t gBlinkLedDate = 0;
+static uint32_t gReceivedFrameCount = 0;
+static uint32_t gSentFrameCount = 0;
 void loop()
 {
 	esp_task_wdt_reset();
-	//ws.cleanupClients();
-	// AsyncElegantOTA.loop();
+	// ws.cleanupClients();
+	//  AsyncElegantOTA.loop();
 	timer_1ms.update();
 	timer_10ms.update();
 	timer_100ms.update();
 	timer_1sek.update();
 	timer_10sek.update();
 
-	CAN_frame_t rx_frame;
-
-	unsigned long currentMillis = millis();
-
-	// Receive next CAN frame from queue
-	if (xQueueReceive(CAN_cfg.rx_queue, &rx_frame, 3 * portTICK_PERIOD_MS) == pdTRUE)
+	CANMessage frame;
+	if (gBlinkLedDate < millis())
 	{
+		gBlinkLedDate += 500;
 
-		if (rx_frame.FIR.B.FF == CAN_frame_std)
+		Serial.print("Sent: ");
+		Serial.print(gSentFrameCount);
+		Serial.print("\t");
+		Serial.print("Receive: ");
+		Serial.print(gReceivedFrameCount);
+		Serial.print("\t");
+		Serial.print(" STATUS 0x");
+		Serial.print(CAN_STATUS, HEX);
+		Serial.print(" RXERR ");
+		Serial.print(CAN_RX_ECR);
+		Serial.print(" TXERR ");
+		Serial.println(CAN_TX_ECR);
+		const bool ok = ACAN_ESP32::can.tryToSend(frame);
+		if (ok)
 		{
-			printf("New standard frame");
-		}
-		else
-		{
-			printf("New extended frame");
-		}
-
-		if (rx_frame.FIR.B.RTR == CAN_RTR)
-		{
-			printf(" RTR from 0x%08X, DLC %d\r\n", rx_frame.MsgID, rx_frame.FIR.B.DLC);
-		}
-		else
-		{
-			printf(" from 0x%08X, DLC %d, Data ", rx_frame.MsgID, rx_frame.FIR.B.DLC);
-			for (int i = 0; i < rx_frame.FIR.B.DLC; i++)
-			{
-				printf("0x%02X ", rx_frame.data.u8[i]);
-			}
-			printf("\n");
+			gSentFrameCount += 1;
 		}
 	}
-	// Send CAN Message
-
-	if (currentMillis - previousMillis >= interval)
+	while (ACAN_ESP32::can.receive(frame))
 	{
-		log_i("CAN frame na odoslanie");
-		previousMillis = currentMillis;
-		CAN_frame_t tx_frame;
-		tx_frame.FIR.B.FF = CAN_frame_std;
-		tx_frame.MsgID = 0x001;
-		tx_frame.FIR.B.DLC = 8;
-		tx_frame.data.u8[0] = 0x00;
-		tx_frame.data.u8[1] = 0x01;
-		tx_frame.data.u8[2] = 0x02;
-		tx_frame.data.u8[3] = 0x03;
-		tx_frame.data.u8[4] = 0x04;
-		tx_frame.data.u8[5] = 0x05;
-		tx_frame.data.u8[6] = 0x06;
-		tx_frame.data.u8[7] = 0x07;
-		log_i("samotne CAN frame na odoslanie");
-		int rett = ESP32Can.CANWriteFrame(&tx_frame);
-		log_i("CAN frame na odoslanie vratilo: %i", rett);
+		gReceivedFrameCount += 1;
 	}
 }
 
@@ -230,7 +234,7 @@ void Loop_100ms(void)
 
 void Loop_1sek(void)
 {
-	log_i("[1sek Loop]  mam 1 sek....  ");
+	//log_i("[1sek Loop]  mam 1 sek....  ");
 	String sprava; // = rtc.getTime("\r\n[%H:%M:%S] karta a toto cas z PCF8563:");
 						// unsigned long start = micros();
 	// sprava += PCFrtc.formatDateTime(PCF_TIMEFORMAT_YYYY_MM_DD_H_M_S);
