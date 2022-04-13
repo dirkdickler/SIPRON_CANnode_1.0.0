@@ -27,8 +27,6 @@
 //#include "Middleware\Ethernet\WizChip_my_API.h"
 #include "esp_log.h"
 
-//#include "sdusb.h"
-//#include "mscusb.h"
 
 // Replace with your network credentials
 // const char* ssid = "Grabcovi";

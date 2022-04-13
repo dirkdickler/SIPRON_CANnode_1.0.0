@@ -13,6 +13,12 @@
         "memory": "cpp",
         "random": "cpp",
         "initializer_list": "cpp",
-        "regex": "cpp"
+        "regex": "cpp",
+        "gpio.h": "c",
+        "can_config.h": "c",
+        "can.h": "c",
+        "can_regdef.h": "c",
+        "dport_reg.h": "c",
+        "soc.h": "c"
     }
 }
