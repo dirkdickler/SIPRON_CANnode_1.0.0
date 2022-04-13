@@ -162,7 +162,7 @@ void Loop_100ms(void)
 
 void Loop_1sek(void)
 {
-	// ComDebug("[1sek Loop]  mam 1 sek....  ");
+	log_i("[1sek Loop]  mam 1 sek....  ");
 	String sprava; // = rtc.getTime("\r\n[%H:%M:%S] karta a toto cas z PCF8563:");
 						// unsigned long start = micros();
 	// sprava += PCFrtc.formatDateTime(PCF_TIMEFORMAT_YYYY_MM_DD_H_M_S);
@@ -180,67 +180,20 @@ void Loop_1sek(void)
 		digitalWrite(LED_pin, 1);
 	}
 
-	char tt[100];
-	// sprintf(tt, "   SCTprud: %uA\r\n", SCT_prud_0);
-	sprava += tt;
-	ComDebugln(sprava);
-	// TCP_debugMsg(sprava);
-	// sprava.toCharArray(TX_BUF, TX_RX_MAX_BUF_SIZE, 0);
-	// send(TCP_10001_socket, (u8 *)TX_BUF, strlen(TX_BUF));
-
-	if (Internet_CasDostupny == false)
-	{
-		// ComDebug("Internet cas nedostupny !!,  ");
-	}
-	else
-	{
-		// ComDebug("Internet cas dostupny,  ");
-	}
-	// ComDebug("RTC cas cez func rtc.getTime: ");
-	// ComDebugln(rtc.getTime("%A, %B %d %Y %H:%M:%S"));
-	// MyRTC_cas = rtc.getTimeStruct();
-	// Serial.print("[1sek Loop]  free Heap je:");
-	// Serial.println(ESP.getFreeHeap());
-
-	if (myTimer.socketCloseTimeout)
-	{
-		if (--myTimer.socketCloseTimeout == 0)
-		{
-			ComDebugln("[1sek Loop] Zaviram socket len cas uplynul");
-			// disconnect(TCP_10001_socket);
-			closeSocket(TCP_10001_socket);
-		}
-	}
-
-	{
-		// float testVal = 88.89f;
-		// float testVal2 = 99.12f;
-		// LogBuffer.zaznam.PosixTime = rtc.getEpoch();
-		// LogBuffer.zaznam.zaznamID = IDzaznamu_SCT_prud;
-		// float2Bytes(testVal, &LogBuffer.zaznam.data[0]);
-		// float2Bytes(testVal2, &LogBuffer.zaznam.data[4]);
-		// LogBuffer.zaznam.pocetDat = 8;
-		// UlozZaznam(&LogBuffer);
-	}
+	
 }
 
 void Loop_10sek(void)
 {
 	static u8_t loc_cnt_10sek = 0;
-	String sprava = String("\r\n[10sek Loop]  Mam Loop 10 sek....") + rtc.getDateTime(true);
-	Serial.println(sprava);
-	// TCP_debugMsg(sprava);
-	// DebugMsgToWebSocket("[10sek Loop]  mam 10 sek....\r\n");
+	//String sprava = String("\r\n[10sek Loop]  Mam Loop 10 sek....") + rtc.getDateTime(true);
+	//Serial.println(sprava);
+	
 
 	{
 		float testVal = 23.456f;
 		float testVal2 = 34.567f;
-		LogBuffer.zaznam.PosixTime = rtc.getEpoch();
-		LogBuffer.zaznam.zaznamID = IDzaznamu_SCT_prud;
-		float2Bytes(testVal, &LogBuffer.zaznam.data[0]);
-		float2Bytes(testVal2, &LogBuffer.zaznam.data[4]);
-		LogBuffer.zaznam.pocetDat = 8;
-		UlozZaznam(&LogBuffer);
+		log_i("Float hodnoty 1: %f    2:%fP log I",testVal, testVal2);
 	}
 
 	// WiFi_connect_sequencer();
