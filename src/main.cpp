@@ -201,6 +201,7 @@ void Loop_1sek(void)
 	message.identifier = 0x123;
 	message.extd = 0;
 	message.data_length_code = 2;
+	message.rtr = false;
 	for (int i = 0; i < 2; i++)
 	{
 		message.data[i] = 2;
