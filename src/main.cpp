@@ -163,7 +163,35 @@ void loop()
 }
 
 void Loop_1ms()
-{
+{  
+	static bool  lenRaz = false;
+	
+	if ( lenRaz == false )
+	{
+		delay(1000);
+		lenRaz = true;
+		for (u16 i = 0; i < 100; i++)
+		{
+			twai_message_t message;
+			message.identifier = 345;
+			message.extd = 0;
+			message.data_length_code = 1;
+			message.rtr = false;
+			for (int i = 0; i < 1; i++)
+			{
+				message.data[i] = 5;
+			}
+
+			// Queue message for transmission
+			if (twai_transmit(&message, pdMS_TO_TICKS(1000)) == ESP_OK)
+			{
+			}
+			else
+			{
+				log_i("Failed to queue message for transmission\n");
+			} /* code */
+		}
+	}
 }
 
 void Loop_10ms()
@@ -174,6 +202,24 @@ void Loop_10ms()
 
 void Loop_100ms(void)
 {
+	twai_message_t message;
+	message.identifier = 0x333;
+	message.extd = 0;
+	message.data_length_code = 8;
+	message.rtr = false;
+	for (int i = 0; i < 8; i++)
+	{
+		message.data[i] = 4;
+	}
+
+	// Queue message for transmission
+	if (twai_transmit(&message, pdMS_TO_TICKS(1000)) == ESP_OK)
+	{
+	}
+	else
+	{
+		log_i("Failed to queue message for transmission\n");
+	}
 }
 
 void Loop_1sek(void)
@@ -372,11 +418,14 @@ void ESPinfo(void)
 	Serial.print("ESP Board MAC Address:  ");
 	Serial.println(WiFi.macAddress());
 	Serial.println("\r\nHardware info");
+	Serial.print("APB CLOCK: ");
+	Serial.print(APB_CLK_FREQ);
+	Serial.println(" Hz");
 	Serial.printf("%d cores Wifi %s%s\n",
 					  chip_info.cores,
 					  (chip_info.features & CHIP_FEATURE_BT) ? "/BT" : "",
 					  (chip_info.features & CHIP_FEATURE_BLE) ? "/BLE" : "");
-	Serial.printf("\r\nSilicon revision: %d\r\n ", chip_info.revision);
+	Serial.printf("\r\nESP32 Chip Revision: %d\r\n ", chip_info.revision);
 	Serial.printf("%dMB %s flash\r\n",
 					  spi_flash_get_chip_size() / (1024 * 1024),
 					  (chip_info.features & CHIP_FEATURE_EMB_FLASH) ? "embeded" : "external");
@@ -392,6 +441,8 @@ void ESPinfo(void)
 	free(psdRamBuffer);
 	Serial.printf(" Free PSRAM po uvolneni : %d\r\n", ESP.getFreePsram()); // log_d("Free PSRAM: %d", ESP.getFreePsram());
 	Serial.println("\r\n*******************************************************************");
+	Serial.print("ESP32 SDK: ");
+	Serial.println(ESP.getSdkVersion());
 }
 
 void TWAI_RX_Task(void *arg)
@@ -451,10 +502,9 @@ void TWAI_RX_Task(void *arg)
 		}
 		else
 		{
-			//log_i("Failed to receive message");
+			// log_i("Failed to receive message");
 		}
 
-		
 		delay(10);
 	}
 }
