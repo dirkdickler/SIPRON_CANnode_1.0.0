@@ -140,7 +140,6 @@ IPAddress str2IP(String str);
 void OdosliStrankeVytapeniData(void);
 String handle_Zadavanie_IP_setting(void);
 void handle_Nastaveni(AsyncWebServerRequest *request);
-void encoder();
-void TCP_handler(uint8_t s, uint16_t port);
+void TWAI_RX_Task(void *arg); 
 
 #endif

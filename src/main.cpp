@@ -60,6 +60,8 @@ IPAddress subnet(255, 255, 255, 0);
 IPAddress primaryDNS(8, 8, 8, 8);	// optional
 IPAddress secondaryDNS(8, 8, 4, 4); // optional
 
+TaskHandle_t TWAI_RX_task_hndl;
+
 const char *ntpServer = "pool.ntp.org";
 const long gmtOffset_sec = 0;		 // 3600;
 const int daylightOffset_sec = 0; // 3600; //letny cas
@@ -137,48 +139,15 @@ void setup()
 	// RS485 musis spustit az tu, lebo ak ju das hore a ESP ceka na konnect wifi, a pridu nejake data na RS485, tak FreeRTOS =RESET  asi overflow;
 	// Serial1.begin(9600);
 
-	log_i("Configure ESP32 CAN");
-	twai_general_config_t g_config = TWAI_GENERAL_CONFIG_DEFAULT(GPIO_NUM_34, GPIO_NUM_33, TWAI_MODE_NORMAL);
-	twai_timing_config_t t_config = TWAI_TIMING_CONFIG_125KBITS();
-	twai_filter_config_t f_config = TWAI_FILTER_CONFIG_ACCEPT_ALL();
-
-	// Install TWAI driver
-	if (twai_driver_install(&g_config, &t_config, &f_config) == ESP_OK)
-	{
-		log_i("Driver installed");
-	}
-	else
-	{
-		log_i("Failed to install driver");
-		return;
-	}
-
-	// Start TWAI driver
-	if (twai_start() == ESP_OK)
-	{
-		log_i("Driver started");
-	}
-	else
-	{
-		log_i("Failed to start driver");
-		return;
-	}
-
-	twai_message_t message;
-	message.identifier = 0xAAAA;
-	message.extd = 1;
-	message.data_length_code = 4;
-	for (int i = 0; i < 4; i++) {
-		message.data[i] = 2;
-	}
-
-	//Queue message for transmission
-	if (twai_transmit(&message, pdMS_TO_TICKS(1000)) == ESP_OK) {
-		log_i("Message queued for transmission");
-	}
-	else {
-		log_i("Failed to queue message for transmission");
-	}
+	xTaskCreatePinnedToCore(
+		 TWAI_RX_Task,			// Task function
+		 "task1",				// Name
+		 6000,					// Stack size
+		 nullptr,				// Parameters
+		 1,						// Priority
+		 &TWAI_RX_task_hndl, // handle
+		 0							// CPU
+	);
 }
 
 void loop()
@@ -191,35 +160,6 @@ void loop()
 	timer_100ms.update();
 	timer_1sek.update();
 	timer_10sek.update();
-
-	twai_message_t message;
-	if (twai_receive(&message, pdMS_TO_TICKS(10000)) == ESP_OK)
-	{
-		log_i("Message received");
-	}
-	else
-	{
-		log_i("Failed to receive message");
-		return;
-	}
-
-	// Process received message
-	if (message.extd)
-	{
-		log_i("Message is in Extended Format");
-	}
-	else
-	{
-		log_i("Message is in Standard Format");
-	}
-	log_i("ID is %d", message.identifier);
-	if (!(message.rtr))
-	{
-		for (int i = 0; i < message.data_length_code; i++)
-		{
-			log_i("Data byte %d = %d", i, message.data[i]);
-		}
-	}
 }
 
 void Loop_1ms()
@@ -258,10 +198,10 @@ void Loop_1sek(void)
 
 	log_i("posielam CAN frame");
 	twai_message_t message;
-	message.identifier = 0xAAAA;
-	message.extd = 1;
-	message.data_length_code = 4;
-	for (int i = 0; i < 4; i++)
+	message.identifier = 0x123;
+	message.extd = 0;
+	message.data_length_code = 2;
+	for (int i = 0; i < 2; i++)
 	{
 		message.data[i] = 2;
 	}
@@ -451,4 +391,69 @@ void ESPinfo(void)
 	free(psdRamBuffer);
 	Serial.printf(" Free PSRAM po uvolneni : %d\r\n", ESP.getFreePsram()); // log_d("Free PSRAM: %d", ESP.getFreePsram());
 	Serial.println("\r\n*******************************************************************");
+}
+
+void TWAI_RX_Task(void *arg)
+{
+	log_i("Spustam TWAI_RX_Task");
+
+	log_i("Configure ESP32 CAN");
+	twai_general_config_t g_config = TWAI_GENERAL_CONFIG_DEFAULT(GPIO_NUM_34, GPIO_NUM_33, TWAI_MODE_NORMAL);
+	twai_timing_config_t t_config = TWAI_TIMING_CONFIG_125KBITS();
+	twai_filter_config_t f_config = TWAI_FILTER_CONFIG_ACCEPT_ALL();
+
+	// Install TWAI driver
+	if (twai_driver_install(&g_config, &t_config, &f_config) == ESP_OK)
+	{
+		log_i("Driver installed");
+	}
+	else
+	{
+		log_i("Failed to install driver");
+	}
+
+	// Start TWAI driver
+	if (twai_start() == ESP_OK)
+	{
+		log_i("Driver started");
+	}
+	else
+	{
+		log_i("Failed to start driver");
+	}
+
+	while (1)
+	{
+		twai_message_t message;
+		if (twai_receive(&message, pdMS_TO_TICKS(1000)) == ESP_OK)
+		{
+			log_i("Message received");
+			// Process received message
+			if (message.extd)
+			{
+				log_i("Message is in Extended Format");
+			}
+			else
+			{
+				log_i("Message is in Standard Format");
+			}
+
+			log_i("ID is %d", message.identifier);
+
+			if (!(message.rtr))
+			{
+				for (int i = 0; i < message.data_length_code; i++)
+				{
+					log_i("Data byte %d = %d", i, message.data[i]);
+				}
+			}
+		}
+		else
+		{
+			//log_i("Failed to receive message");
+		}
+
+		
+		delay(10);
+	}
 }
