@@ -3,6 +3,9 @@ pouzivam TWAI s ESP IDF
 https://docs.espressif.com/projects/esp-idf/en/latest/esp32s2/api-reference/peripherals/twai.html#examples
 
 
+
+
+!!! toto  dole nefunguje 
 https://github.com/miwagner/ESP32-Arduino-CAN
 Pre CAN na ESP32 S2 si musim includovat 
 #include "soc/periph_defs.h"  kde riesis problem s esp_intr_alloc(ETS_CAN_INTR_SOURCE, 0, CAN_isr, NULL, NULL); 
