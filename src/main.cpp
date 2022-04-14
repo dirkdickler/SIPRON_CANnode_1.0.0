@@ -27,9 +27,9 @@
 //#include "Middleware\Ethernet\WizChip_my_API.h"
 #include "esp_log.h"
 
-#include <ACAN_ESP32.h>
-#include <ACAN_ESP32_CANRegisters.h>
-//#include <core_version.h> // For ARDUINO_ESP32_RELEASE
+//#include <ACAN_ESP32.h>
+#include "driver/twai.h"
+//#include <ACAN_ESP32_CANRegisters.h>
 
 // Replace with your network credentials
 // const char* ssid = "Grabcovi";
@@ -138,46 +138,49 @@ void setup()
 	// Serial1.begin(9600);
 
 	log_i("Configure ESP32 CAN");
-	ACAN_ESP32_Settings settings(DESIRED_BIT_RATE);
-	settings.mRequestedCANMode = ACAN_ESP32_Settings::LoopBackMode;
-	settings.mRxPin = GPIO_NUM_33; // Optional, default Tx pin is GPIO_NUM_4
-	settings.mTxPin = GPIO_NUM_34; // Optional, default Rx pin is GPIO_NUM_5
-	const uint32_t errorCode = ACAN_ESP32::can.begin(settings);
-	if (errorCode == 0)
+	twai_general_config_t g_config = TWAI_GENERAL_CONFIG_DEFAULT(GPIO_NUM_34, GPIO_NUM_33, TWAI_MODE_NORMAL);
+	twai_timing_config_t t_config = TWAI_TIMING_CONFIG_125KBITS();
+	twai_filter_config_t f_config = TWAI_FILTER_CONFIG_ACCEPT_ALL();
+
+	// Install TWAI driver
+	if (twai_driver_install(&g_config, &t_config, &f_config) == ESP_OK)
 	{
-		Serial.print("Bit Rate prescaler: ");
-		Serial.println(settings.mBitRatePrescaler);
-		Serial.print("Time Segment 1:     ");
-		Serial.println(settings.mTimeSegment1);
-		Serial.print("Time Segment 2:     ");
-		Serial.println(settings.mTimeSegment2);
-		Serial.print("RJW:                ");
-		Serial.println(settings.mRJW);
-		Serial.print("Triple Sampling:    ");
-		Serial.println(settings.mTripleSampling ? "yes" : "no");
-		Serial.print("Actual bit rate:    ");
-		Serial.print(settings.actualBitRate());
-		Serial.println(" bit/s");
-		Serial.print("Exact bit rate ?    ");
-		Serial.println(settings.exactBitRate() ? "yes" : "no");
-		Serial.print("Distance            ");
-		Serial.print(settings.ppmFromDesiredBitRate());
-		Serial.println(" ppm");
-		Serial.print("Sample point:       ");
-		Serial.print(settings.samplePointFromBitStart());
-		Serial.println("%");
-		Serial.println("Configuration OK!");
+		log_i("Driver installed");
 	}
 	else
 	{
-		Serial.print("Configuration error 0x");
-		Serial.println(errorCode, HEX);
+		log_i("Failed to install driver");
+		return;
+	}
+
+	// Start TWAI driver
+	if (twai_start() == ESP_OK)
+	{
+		log_i("Driver started");
+	}
+	else
+	{
+		log_i("Failed to start driver");
+		return;
+	}
+
+	twai_message_t message;
+	message.identifier = 0xAAAA;
+	message.extd = 1;
+	message.data_length_code = 4;
+	for (int i = 0; i < 4; i++) {
+		message.data[i] = 2;
+	}
+
+	//Queue message for transmission
+	if (twai_transmit(&message, pdMS_TO_TICKS(1000)) == ESP_OK) {
+		log_i("Message queued for transmission");
+	}
+	else {
+		log_i("Failed to queue message for transmission");
 	}
 }
 
-static uint32_t gBlinkLedDate = 0;
-static uint32_t gReceivedFrameCount = 0;
-static uint32_t gSentFrameCount = 0;
 void loop()
 {
 	esp_task_wdt_reset();
@@ -189,32 +192,33 @@ void loop()
 	timer_1sek.update();
 	timer_10sek.update();
 
-	CANMessage frame;
-	if (gBlinkLedDate < millis())
+	twai_message_t message;
+	if (twai_receive(&message, pdMS_TO_TICKS(10000)) == ESP_OK)
 	{
-		gBlinkLedDate += 500;
-
-		Serial.print("Sent: ");
-		Serial.print(gSentFrameCount);
-		Serial.print("\t");
-		Serial.print("Receive: ");
-		Serial.print(gReceivedFrameCount);
-		Serial.print("\t");
-		Serial.print(" STATUS 0x");
-		Serial.print(CAN_STATUS, HEX);
-		Serial.print(" RXERR ");
-		Serial.print(CAN_RX_ECR);
-		Serial.print(" TXERR ");
-		Serial.println(CAN_TX_ECR);
-		const bool ok = ACAN_ESP32::can.tryToSend(frame);
-		if (ok)
-		{
-			gSentFrameCount += 1;
-		}
+		log_i("Message received");
 	}
-	while (ACAN_ESP32::can.receive(frame))
+	else
 	{
-		gReceivedFrameCount += 1;
+		log_i("Failed to receive message");
+		return;
+	}
+
+	// Process received message
+	if (message.extd)
+	{
+		log_i("Message is in Extended Format");
+	}
+	else
+	{
+		log_i("Message is in Standard Format");
+	}
+	log_i("ID is %d", message.identifier);
+	if (!(message.rtr))
+	{
+		for (int i = 0; i < message.data_length_code; i++)
+		{
+			log_i("Data byte %d = %d", i, message.data[i]);
+		}
 	}
 }
 
@@ -234,7 +238,7 @@ void Loop_100ms(void)
 
 void Loop_1sek(void)
 {
-	//log_i("[1sek Loop]  mam 1 sek....  ");
+	// log_i("[1sek Loop]  mam 1 sek....  ");
 	String sprava; // = rtc.getTime("\r\n[%H:%M:%S] karta a toto cas z PCF8563:");
 						// unsigned long start = micros();
 	// sprava += PCFrtc.formatDateTime(PCF_TIMEFORMAT_YYYY_MM_DD_H_M_S);
@@ -250,6 +254,26 @@ void Loop_1sek(void)
 	else
 	{
 		digitalWrite(LED_pin, 1);
+	}
+
+	log_i("posielam CAN frame");
+	twai_message_t message;
+	message.identifier = 0xAAAA;
+	message.extd = 1;
+	message.data_length_code = 4;
+	for (int i = 0; i < 4; i++)
+	{
+		message.data[i] = 2;
+	}
+
+	// Queue message for transmission
+	if (twai_transmit(&message, pdMS_TO_TICKS(1000)) == ESP_OK)
+	{
+		log_i("Message queued for transmission\n");
+	}
+	else
+	{
+		log_i("Failed to queue message for transmission\n");
 	}
 }
 
