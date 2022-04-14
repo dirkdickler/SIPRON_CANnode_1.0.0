@@ -267,8 +267,8 @@ void System_init(void)
 	DIN[input1].pin = DI1_pin;
 	DIN[input2].pin = DI2_pin;
 	DIN[input3].pin = DI3_pin;
-	DIN[input4].pin = DI3_pin;  //TODO zmen na real kvolo CAN
-	DIN[input1].pin = DI3_pin;
+	DIN[input4].pin = DI4_pin; 
+	DIN[input1].pin = DI5_pin;
 	DIN[input2].pin = DI6_pin;
 	DIN[input3].pin = DI7_pin;
 	DIN[input4].pin = DI8_pin;
@@ -283,8 +283,8 @@ void System_init(void)
 	pinMode(DI1_pin, INPUT_PULLUP);
 	pinMode(DI2_pin, INPUT_PULLUP);
 	pinMode(DI3_pin, INPUT_PULLUP);
-	//pinMode(DI4_pin, INPUT_PULLUP);//TODO zmen na real kvolo CAN
-	//pinMode(DI5_pin, INPUT_PULLUP);
+	pinMode(DI4_pin, INPUT_PULLUP);
+	pinMode(DI5_pin, INPUT_PULLUP);
 	pinMode(DI6_pin, INPUT_PULLUP);
 	pinMode(DI7_pin, INPUT_PULLUP);
 	pinMode(DI8_pin, INPUT_PULLUP);
