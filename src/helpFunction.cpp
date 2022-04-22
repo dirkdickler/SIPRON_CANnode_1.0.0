@@ -3,14 +3,12 @@
 #include <elegantWebpage.h>
 
 #include <Arduino_JSON.h>
-#include <TimeLib.h>
-#include "SD.h"
+//#include <TimeLib.h>
+//#include "SD.h"
 #include <EEPROM.h>
 #include "main.h" //kvolu u8,u16..
 
 #include "Pin_assigment.h"
-//#include "WizChip_my_API.h"
-//#include "Middleware\Ethernet\wizchip_conf.h"
 #include "index.html"
 #include "HelpFunction.h"
 
@@ -307,6 +305,8 @@ void System_init(void)
 	pinMode(DO7_pin, OUTPUT);
 	pinMode(DO8_pin, OUTPUT);
 
+	rtc.setTime(30, 24, 8, 17, 1, 2021); // 17th Jan 2021 15:24:30
+
 	log_i("[Func:System_init]  end..");
 }
 
@@ -314,11 +314,11 @@ int8_t NacitajEEPROM_setting(void)
 {
 	if (!EEPROM.begin(500))
 	{
-		Serial.println("Failed to initialise EEPROM");
+		log_i("Failed to initialise EEPROM");
 		return -1;
 	}
 
-	Serial.println("Succes to initialise EEPROM");
+	log_i("Succes to initialise EEPROM");
 
 	EEPROM.readBytes(EE_NazovSiete, NazovSiete, 16);
 
@@ -337,12 +337,12 @@ int8_t NacitajEEPROM_setting(void)
 		memset(Heslo, 0, sizeof(Heslo));
 		u8_t dd = EEPROM.readBytes(EE_NazovSiete, NazovSiete, 16);
 		u8_t ww = EEPROM.readBytes(EE_Heslosiete, Heslo, 20);
-		Serial.printf("Nacitany nazov siete a heslo z EEPROM: %s  a %s\r\n", NazovSiete, Heslo);
+		log_i("Nacitany nazov siete a heslo z EEPROM: %s  a %s\r\n", NazovSiete, Heslo);
 		return 0;
 	}
 	else
 	{
-		Serial.println("EEPROM je este prazna, nachavma default hodnoty");
+		log_i("EEPROM je este prazna, nachavma default hodnoty");
 		sprintf(NazovSiete, "semiart");
 		sprintf(Heslo, "aabbccddff");
 		return 1;
@@ -446,9 +446,9 @@ void WiFi_init(void)
 	WiFi.mode(WIFI_MODE_APSTA);
 	log_i("Creating Accesspoint");
 	WiFi.softAP(soft_ap_ssid, soft_ap_password, 7, 0, 3);
-	//Serial.print("IP address:\t");
-	//Serial.println(WiFi.softAPIP());
-	log_i("IP address:%s",WiFi.softAPIP());
+	Serial.print("IP address:");
+	Serial.println(WiFi.softAPIP());
+	
 
 	if (!WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS))
 	{
@@ -463,7 +463,8 @@ void WiFi_init(void)
 		aa++;
 	}
 	// Print ESP Local IP Address
-	log_i("Local IP adress:%s",WiFi.localIP());
+	Serial.print("Local IP adress:");
+	Serial.println(WiFi.localIP());
 
 	ws.onEvent(onEvent);		// initWebSocket();
 	server.addHandler(&ws); // initWebSocket();
@@ -479,8 +480,7 @@ void WiFi_connect_sequencer(void) // vplas kazdych 10 sek loop
 {
 	static u8_t loc_cnt_10sek = 0;
 
-	Serial.print("Wifi status:");
-	Serial.println(WiFi.status());
+	log_i("Wifi status:%status",WiFi.status());
 
 	// https://randomnerdtutorials.com/esp32-useful-wi-fi-functions-arduino/
 	if (WiFi.status() != WL_CONNECTED)
@@ -491,7 +491,7 @@ void WiFi_connect_sequencer(void) // vplas kazdych 10 sek loop
 	else
 	{
 		loc_cnt_10sek = 0;
-		Serial.println("[10sek] Parada WIFI je Connect davam loc_cnt na Nula");
+		log_i("[10sek] Parada WIFI je Connect davam loc_cnt na Nula");
 
 		// TODO ak je Wifi connect tak pocitam ze RTC cas bude OK este dorob
 		Internet_CasDostupny = true;
@@ -500,21 +500,21 @@ void WiFi_connect_sequencer(void) // vplas kazdych 10 sek loop
 
 	if (loc_cnt_10sek == 2)
 	{
-		Serial.println("[10sek] Odpajam WIFI, lebo wifi nieje: WL_CONNECTED ");
+		log_i("[10sek] Odpajam WIFI, lebo wifi nieje: WL_CONNECTED ");
 		WiFi.disconnect(1, 1);
 	}
 	else if (loc_cnt_10sek == 3)
 	{
 		loc_cnt_10sek = 255;
 		WiFi.mode(WIFI_MODE_APSTA);
-		Serial.println("znovu -Creating Accesspoint");
+		log_i("znovu -Creating Accesspoint");
 		WiFi.softAP(soft_ap_ssid, soft_ap_password, 7, 0, 3);
 
 		if (!WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS))
 		{
-			Serial.println("STA Failed to configure");
+			log_i("STA Failed to configure");
 		}
-		Serial.println("znovu -Wifi begin");
+		log_i("znovu -Wifi begin");
 		WiFi.begin(NazovSiete, Heslo);
 		u8_t aa = 0;
 		while (WiFi.waitForConnectResult() != WL_CONNECTED && aa < 2)

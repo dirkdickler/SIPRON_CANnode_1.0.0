@@ -10,26 +10,19 @@
 #include "time.h"
 #include <Ticker.h>
 #include <EEPROM.h>
-#include <TimeLib.h>
-#include <Wire.h>
+//#include <TimeLib.h>
+//#include <Wire.h>
 //#include "pcf8563.h"
 #include "index.html"
 #include "main.h"
 #include "define.h"
 #include "constants.h"
-// #include "FS.h"
-// #include "SD.h"
-//#include "SPI.h"
-//#include <SoftwareSerial.h>
-//#include <ESP32Time.h>
 #include "HelpFunction.h"
 #include "Pin_assigment.h"
-//#include "Middleware\Ethernet\WizChip_my_API.h"
 #include "esp_log.h"
 
 //#include <ACAN_ESP32.h>
 #include "driver/twai.h"
-//#include <ACAN_ESP32_CANRegisters.h>
 
 // Replace with your network credentials
 // const char* ssid = "Grabcovi";
@@ -91,16 +84,12 @@ char TX_BUF[TX_RX_MAX_BUF_SIZE];
 void setup()
 {
 	Serial.begin(115200);
-	Serial.println("Spustam applikaciu.a1");
+	Serial.println("********************************************************************************************************");
+	Serial.println("* 																																		");
+	Serial.println("* 														Spustam applikaciu.a1													");
+	Serial.println("* 																																		");
+	Serial.println("********************************************************************************************************");
 	System_init();
-
-	ESP_LOGW("", "est ESLP log W");
-	ESP_LOGI("TEST SP log I", "storage usedd: %lld/%lld", 23, 24);
-	log_i("TEST SP log I", "storage usedd: %lld/%lld", 23, 24);
-
-	// attachInterrupt(digitalPinToInterrupt(ENCODER1), encoder, RISING);
-	// pinMode(ENCODER1, INPUT);
-	// pinMode(ENCODER2, INPUT);
 
 	ESPinfo();
 
@@ -125,7 +114,7 @@ void setup()
 
 	NacitajEEPROM_setting();
 
-	 //WiFi_init();    //este si odkomentuj  //WiFi_connect_sequencer(); v 10 sek loop
+	WiFi_init(); // este si odkomentuj  //WiFi_connect_sequencer(); v 10 sek loop
 	// configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
 
 	timer_1ms.start();
@@ -153,8 +142,7 @@ void setup()
 void loop()
 {
 	esp_task_wdt_reset();
-	// ws.cleanupClients();
-	//  AsyncElegantOTA.loop();
+	ws.cleanupClients();
 	timer_1ms.update();
 	timer_10ms.update();
 	timer_100ms.update();
@@ -163,10 +151,10 @@ void loop()
 }
 
 void Loop_1ms()
-{  
-	static bool  lenRaz = false;
-	
-	if ( lenRaz == false )
+{
+	static bool lenRaz = false;
+
+	if (lenRaz == false)
 	{
 		delay(1000);
 		lenRaz = true;
@@ -183,12 +171,12 @@ void Loop_1ms()
 			}
 
 			// Queue message for transmission
-			if (twai_transmit(&message, pdMS_TO_TICKS(1000)) == ESP_OK)
+			if (0) // twai_transmit(&message, pdMS_TO_TICKS(1000)) == ESP_OK)
 			{
 			}
 			else
 			{
-				log_i("Failed to queue message for transmission\n");
+				//	log_i("Failed to queue message for transmission\n");
 			} /* code */
 		}
 	}
@@ -213,12 +201,12 @@ void Loop_100ms(void)
 	}
 
 	// Queue message for transmission
-	if (twai_transmit(&message, pdMS_TO_TICKS(1000)) == ESP_OK)
+	if (0) // twai_transmit(&message, pdMS_TO_TICKS(1000)) == ESP_OK)
 	{
 	}
 	else
 	{
-		log_i("Failed to queue message for transmission\n");
+		// log_i("Failed to queue message for transmission\n");
 	}
 }
 
@@ -242,30 +230,48 @@ void Loop_1sek(void)
 		digitalWrite(LED_pin, 1);
 	}
 
-	log_i("posielam CAN frame");
-	twai_message_t message;
-	message.identifier = 0x123;
-	message.extd = 0;
-	message.data_length_code = 2;
-	message.rtr = false;
-	for (int i = 0; i < 2; i++)
-	{
-		message.data[i] = 2;
-	}
+	// log_i("posielam CAN frame");
+	// twai_message_t message;
+	// message.identifier = 0x123;
+	// message.extd = 0;
+	// message.data_length_code = 2;
+	// message.rtr = false;
+	// for (int i = 0; i < 2; i++)
+	// {
+	// 	message.data[i] = 2;
+	// }
 
 	// Queue message for transmission
-	if (twai_transmit(&message, pdMS_TO_TICKS(1000)) == ESP_OK)
+	if (0) // twai_transmit(&message, pdMS_TO_TICKS(1000)) == ESP_OK)
 	{
 		log_i("Message queued for transmission\n");
 	}
 	else
 	{
-		log_i("Failed to queue message for transmission\n");
+		// log_i("Failed to queue message for transmission\n");
 	}
+
+	Serial.print("RTC cas cez func rtc.getTime: ");
+	Serial.println(rtc.getTime("%A, %B %d %Y %H:%M:%S"));
+	MyRTC_cas = rtc.getTimeStruct();
+	// Serial.print("[1sek Loop]  free Heap je:");
+	//  Serial.println(ESP.getFreeHeap());
+
+	float flt = (float)ESP.getFreeHeap();
+	flt /= 1000.0f;
+	char locBuf[50];
+	sprintf(locBuf, "%.3f", flt);
+	log_i("HEAP free:%s", locBuf);
+
+	String rr = "[1sek Loop] signalu: " + (String)WiFi.RSSI() + "dBm  a Heap: " + locBuf + " kB " +
+					" Ine..\r\n ";
+
+	DebugMsgToWebSocket(rr);
 }
 
 void Loop_10sek(void)
 {
+	log_i("-mam 10 sek....");
 	static u8_t loc_cnt_10sek = 0;
 	// String sprava = String("\r\n[10sek Loop]  Mam Loop 10 sek....") + rtc.getDateTime(true);
 	// Serial.println(sprava);
@@ -273,7 +279,7 @@ void Loop_10sek(void)
 	{
 		float testVal = 23.456f;
 		float testVal2 = 34.567f;
-		log_i("Float hodnoty 1: %f    2:%fP log I", testVal, testVal2);
+		log_i("Float hodnoty 1: %f    2:%f ", testVal, testVal2);
 	}
 
 	// WiFi_connect_sequencer();
