@@ -45,8 +45,7 @@ Ticker timer_100ms(Loop_100ms, 300, 0, MILLIS);
 Ticker timer_1sek(Loop_1sek, 1000, 0, MILLIS);
 Ticker timer_10sek(Loop_10sek, 10000, 0, MILLIS);
 
-ESP32Time rtc;
-// PCF8563_Class PCFrtc;
+
 IPAddress local_IP(192, 168, 1, 14);
 IPAddress gateway(192, 168, 1, 1);
 IPAddress subnet(255, 255, 255, 0);
@@ -54,15 +53,6 @@ IPAddress primaryDNS(8, 8, 8, 8);	// optional
 IPAddress secondaryDNS(8, 8, 4, 4); // optional
 
 TaskHandle_t TWAI_RX_task_hndl;
-
-const char *ntpServer = "pool.ntp.org";
-const long gmtOffset_sec = 0;		 // 3600;
-const int daylightOffset_sec = 0; // 3600; //letny cas
-struct tm MyRTC_cas;
-bool Internet_CasDostupny = false; // to je ze dostava cas z Inernetu
-bool RTC_cas_OK = false;			  // ze mam RTC fakt nastaveny bud z interneru, alebo nastaveny manualne
-											  // a to teda ze v RTC mam fakr realny cas
-											  // Tento FLAG, nastavi len pri nacitanie casu z internutu, alebo do buducna manualne nastavenie casu cew WEB
 
 char gloBuff[200];
 bool LogEnebleWebPage = false;
@@ -84,11 +74,11 @@ char TX_BUF[TX_RX_MAX_BUF_SIZE];
 void setup()
 {
 	Serial.begin(115200);
-	Serial.println("********************************************************************************************************");
-	Serial.println("* 																																		");
-	Serial.println("* 														Spustam applikaciu.a1													");
-	Serial.println("* 																																		");
-	Serial.println("********************************************************************************************************");
+	Serial.println("*********************************************************************************************************");
+	Serial.println("* 																																		*");
+	Serial.println("* 														Spustam applikaciu.a1													*");
+	Serial.println("* 																																		*");
+	Serial.println("*********************************************************************************************************");
 	System_init();
 
 	ESPinfo();
@@ -251,12 +241,6 @@ void Loop_1sek(void)
 		// log_i("Failed to queue message for transmission\n");
 	}
 
-	Serial.print("RTC cas cez func rtc.getTime: ");
-	Serial.println(rtc.getTime("%A, %B %d %Y %H:%M:%S"));
-	MyRTC_cas = rtc.getTimeStruct();
-	// Serial.print("[1sek Loop]  free Heap je:");
-	//  Serial.println(ESP.getFreeHeap());
-
 	float flt = (float)ESP.getFreeHeap();
 	flt /= 1000.0f;
 	char locBuf[50];
@@ -287,14 +271,7 @@ void Loop_10sek(void)
 
 void OdosliCasDoWS(void)
 {
-	String DenvTyzdni = "! Čas nedostupný !";
-	char loc_buf[60];
-	DenvTyzdni = ConvetWeekDay_UStoSK(&MyRTC_cas);
-	char hodiny[5];
-	char minuty[5];
-	strftime(loc_buf, sizeof(loc_buf), " %H:%M    %d.%m.%Y    ", &MyRTC_cas);
-
-	ObjDatumCas["Cas"] = loc_buf + DenvTyzdni; // " 11:22 Stredaaaa";
+	ObjDatumCas["Cas"] = "--:--";
 	String jsonString = JSON.stringify(ObjDatumCas);
 	Serial.print("[10sek] Odosielam strankam ws Cas:");
 	Serial.println(jsonString);
@@ -305,7 +282,7 @@ void DebugMsgToWebSocket(String textik)
 {
 	if (LogEnebleWebPage == true)
 	{
-		String sprava = rtc.getTime("%H:%M:%S ");
+		String sprava = "--:--"; //rtc.getTime("%H:%M:%S ");
 		JSON_DebugMsg["DebugMsg"] = sprava + textik;
 		String jsonString = JSON.stringify(JSON_DebugMsg);
 		ws.textAll(jsonString);
@@ -347,36 +324,11 @@ void FuncServer_On(void)
 	server.on("/status", HTTP_GET, [](AsyncWebServerRequest *request)
 				 {
 					 char ttt[500];
-					 //u16_t citac = EEPROM.readUShort (EE_citacZapisuDoEEPORM);
-					 //u16_t citac2 = EEPROM.readUShort (EE_citac2_ZapisuDoEEPORM);
+					 
 
-					 char loc_buf[20];
-					 char loc_buf1[60];
-					 char loc_buf2[100];
-					 if (Internet_CasDostupny == true)
-					 {
-						 sprintf(loc_buf, "dostupny :-)");
-					 }
-					 else
-					 {
-						 sprintf(loc_buf, "nedostupny!!");
-					 }
-
-					 if (RTC_cas_OK == false)
-					 {
-						 sprintf(loc_buf2, "[RTC_cas_OK == flase] RTC NE-maju realny cas!!. RTC hodnota: ");
-					 }
-					 else
-					 {
-						 sprintf(loc_buf2, "[RTC_cas_OK == true] RTC hodnota: ");
-					 }
-					 strftime(loc_buf1, sizeof(loc_buf1), " %H:%M:%S    %d.%m.%Y    ", &MyRTC_cas);
-
-					 sprintf(ttt, "Firmware :%s<br>"
-									  "Sila signalu WIFI(-30 je akoze OK):%i<br>"
-									  "Internet cas: %s<br>"
-									  "%s %s",
-								firmware, WiFi.RSSI(), loc_buf, loc_buf2, loc_buf1);
+					 snprintf(ttt, sizeof(ttt),"Firmware :%s<br>"
+									  "Sila signalu WIFI(-30 je akoze OK):%i<br>",
+									  								firmware, WiFi.RSSI());
 
 					 request->send(200, "text/html", ttt); });
 

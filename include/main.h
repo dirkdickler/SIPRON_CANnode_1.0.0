@@ -115,14 +115,12 @@ extern IPAddress subnet;
 extern IPAddress primaryDNS;
 extern IPAddress secondaryDNS;
 //extern SPIClass SDSPI;
-extern ESP32Time rtc;
 extern JSONVar myObject, myObject2, ObjDatumCas, ObjTopeni, JSON_DebugMsg;
 extern LOGBUFF_t LogBuffer;
 extern bool Internet_CasDostupny;
-extern bool RTC_cas_OK;
 extern char TX_BUF[];
 extern u16 AN_Pot1_Raw;
-//extern PCF8563_Class PCFrtc;
+
 
 void Loop_1ms(void);
 void Loop_10ms(void);

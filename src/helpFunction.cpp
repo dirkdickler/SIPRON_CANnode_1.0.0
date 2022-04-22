@@ -210,20 +210,20 @@ void ScanInputs(void)
 		DIN[i].zmena = Input_digital_filtering(&DIN[i], filterTime_DI);
 		if (DIN[i].zmena == true)
 		{
-			//LogBuffer.zaznam.PosixTime = rtc.getEpoch();
-			//LogBuffer.zaznam.zaznamID = IDzaznamu_IN1 + i;
-			//LogBuffer.zaznam.pocetDat = 1;
+			// LogBuffer.zaznam.PosixTime = rtc.getEpoch();
+			// LogBuffer.zaznam.zaznamID = IDzaznamu_IN1 + i;
+			// LogBuffer.zaznam.pocetDat = 1;
 
 			if (DIN[i].input == true)
 			{
 				DIN[i].counter++;
-				//LogBuffer.zaznam.data[0] = 1;
+				// LogBuffer.zaznam.data[0] = 1;
 			} // tu si incrementuju citac impulzu
 			else
 			{
-				//LogBuffer.zaznam.data[0] = 0;
+				// LogBuffer.zaznam.data[0] = 0;
 			}
-			//UlozZaznam(&LogBuffer);
+			// UlozZaznam(&LogBuffer);
 			bolaZmenaVstupu |= DIN[i].zmena;
 		}
 	}
@@ -265,7 +265,7 @@ void System_init(void)
 	DIN[input1].pin = DI1_pin;
 	DIN[input2].pin = DI2_pin;
 	DIN[input3].pin = DI3_pin;
-	DIN[input4].pin = DI4_pin; 
+	DIN[input4].pin = DI4_pin;
 	DIN[input1].pin = DI5_pin;
 	DIN[input2].pin = DI6_pin;
 	DIN[input3].pin = DI7_pin;
@@ -304,8 +304,6 @@ void System_init(void)
 	pinMode(DO6_pin, OUTPUT);
 	pinMode(DO7_pin, OUTPUT);
 	pinMode(DO8_pin, OUTPUT);
-
-	rtc.setTime(30, 24, 8, 17, 1, 2021); // 17th Jan 2021 15:24:30
 
 	log_i("[Func:System_init]  end..");
 }
@@ -448,7 +446,6 @@ void WiFi_init(void)
 	WiFi.softAP(soft_ap_ssid, soft_ap_password, 7, 0, 3);
 	Serial.print("IP address:");
 	Serial.println(WiFi.softAPIP());
-	
 
 	if (!WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS))
 	{
@@ -480,7 +477,7 @@ void WiFi_connect_sequencer(void) // vplas kazdych 10 sek loop
 {
 	static u8_t loc_cnt_10sek = 0;
 
-	log_i("Wifi status:%status",WiFi.status());
+	log_i("Wifi status:%status", WiFi.status());
 
 	// https://randomnerdtutorials.com/esp32-useful-wi-fi-functions-arduino/
 	if (WiFi.status() != WL_CONNECTED)
@@ -495,7 +492,6 @@ void WiFi_connect_sequencer(void) // vplas kazdych 10 sek loop
 
 		// TODO ak je Wifi connect tak pocitam ze RTC cas bude OK este dorob
 		Internet_CasDostupny = true;
-		RTC_cas_OK = true;
 	}
 
 	if (loc_cnt_10sek == 2)
@@ -693,8 +689,6 @@ void OdosliStrankeVytapeniData(void)
 	ws.textAll(jsonString);
 }
 
-
-
 uint8_t VypocitajSumuBuffera(uint8_t *buffer, uint16_t kolko)
 {
 	uint8_t suma = 0;
@@ -806,10 +800,10 @@ bool KontrolujBufferZdaObsaujeJSONdata(char JSONbuffer[])
 					 (yr > 2000 && yr < 2500))
 				{
 					// TODO tu mas uz rozparsrovany RTC, tak si ho uloz kam potrebujes do ESP casu, or do I2C RTC modulu
-				//	RTC_Date Pccc;
-					//PCFrtc.setDateTime(yr, mt, dy, hr, mn, sc);
-					//Pccc = PCFrtc.getDateTime();
-				//	rtc.setTime(Pccc.second, Pccc.minute, Pccc.hour, Pccc.day, Pccc.month, Pccc.year); // 17th Jan 2021 15:24:30
+					//	RTC_Date Pccc;
+					// PCFrtc.setDateTime(yr, mt, dy, hr, mn, sc);
+					// Pccc = PCFrtc.getDateTime();
+					//	rtc.setTime(Pccc.second, Pccc.minute, Pccc.hour, Pccc.day, Pccc.month, Pccc.year); // 17th Jan 2021 15:24:30
 				}
 				else
 				{
