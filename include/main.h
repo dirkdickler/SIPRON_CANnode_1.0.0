@@ -115,7 +115,7 @@ extern IPAddress subnet;
 extern IPAddress primaryDNS;
 extern IPAddress secondaryDNS;
 //extern SPIClass SDSPI;
-extern JSONVar myObject, myObject2, ObjDatumCas, ObjTopeni, JSON_DebugMsg;
+extern JSONVar myObject, myObject2, JSON_DebugMsg;
 extern LOGBUFF_t LogBuffer;
 extern bool Internet_CasDostupny;
 extern char TX_BUF[];

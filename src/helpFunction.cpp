@@ -682,7 +682,7 @@ void OdosliStrankeVytapeniData(void)
 {
 	// ObjTopeni["tep1"] = room[0].T_vzduch;
 	// ObjTopeni["hum1"] = room[0].RH_vlhkkost;
-
+	JSONVar ObjTopeni;
 	String jsonString = JSON.stringify(ObjTopeni);
 	Serial.print("[ event -VratNamerane_TaH] Odosielam strankam ObjTopeni:");
 	// Serial.println(jsonString);

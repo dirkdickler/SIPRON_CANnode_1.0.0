@@ -38,7 +38,7 @@ char Heslo[30];
 AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
 
-JSONVar myObject, myObject2, ObjDatumCas, ObjTopeni, JSON_DebugMsg;
+JSONVar myObject, myObject2, JSON_DebugMsg;
 Ticker timer_1ms(Loop_1ms, 1, 0, MILLIS);
 Ticker timer_10ms(Loop_10ms, 10, 0, MILLIS);
 Ticker timer_100ms(Loop_100ms, 300, 0, MILLIS);
@@ -248,7 +248,7 @@ void Loop_1sek(void)
 	log_i("HEAP free:%s", locBuf);
 
 	String rr = "[1sek Loop] signalu: " + (String)WiFi.RSSI() + "dBm  a Heap: " + locBuf + " kB " +
-					" Ine..\r\n ";
+					" ....\r\n ";
 
 	DebugMsgToWebSocket(rr);
 }
@@ -271,6 +271,7 @@ void Loop_10sek(void)
 
 void OdosliCasDoWS(void)
 {
+	JSONVar ObjDatumCas; 
 	ObjDatumCas["Cas"] = "--:--";
 	String jsonString = JSON.stringify(ObjDatumCas);
 	Serial.print("[10sek] Odosielam strankam ws Cas:");
