@@ -76,7 +76,7 @@ void setup()
 	Serial.begin(115200);
 	Serial.println("*********************************************************************************************************");
 	Serial.println("* 																																		*");
-	Serial.println("* 														Spustam applikaciu.a1													*");
+	Serial.println("* 														Spustam applikaciu.1233													*");
 	Serial.println("* 																																		*");
 	Serial.println("*********************************************************************************************************");
 	System_init();
