@@ -125,7 +125,7 @@ void setup()
 
 	NacitajEEPROM_setting();
 
-	// WiFi_init();    //este si odkomentuj  //WiFi_connect_sequencer(); v 10 sek loop
+	 //WiFi_init();    //este si odkomentuj  //WiFi_connect_sequencer(); v 10 sek loop
 	// configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
 
 	timer_1ms.start();

@@ -444,14 +444,15 @@ void onEvent(AsyncWebSocket *server,
 void WiFi_init(void)
 {
 	WiFi.mode(WIFI_MODE_APSTA);
-	Serial.println("Creating Accesspoint");
+	log_i("Creating Accesspoint");
 	WiFi.softAP(soft_ap_ssid, soft_ap_password, 7, 0, 3);
-	Serial.print("IP address:\t");
-	Serial.println(WiFi.softAPIP());
+	//Serial.print("IP address:\t");
+	//Serial.println(WiFi.softAPIP());
+	log_i("IP address:%s",WiFi.softAPIP());
 
 	if (!WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS))
 	{
-		Serial.println("STA Failed to configure");
+		log_i("STA Failed to configure");
 	}
 
 	WiFi.begin(NazovSiete, Heslo);
@@ -462,14 +463,14 @@ void WiFi_init(void)
 		aa++;
 	}
 	// Print ESP Local IP Address
-	Serial.println(WiFi.localIP());
+	log_i("Local IP adress:%s",WiFi.localIP());
 
 	ws.onEvent(onEvent);		// initWebSocket();
 	server.addHandler(&ws); // initWebSocket();
 
 	FuncServer_On();
 
-	AsyncElegantOTA.begin(&server, "qqq", "www"); // Start ElegantOTA
+	AsyncElegantOTA.begin(&server, "admin", "sipron"); // Start ElegantOTA
 
 	server.begin();
 }
