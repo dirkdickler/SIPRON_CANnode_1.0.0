@@ -45,7 +45,6 @@ Ticker timer_100ms(Loop_100ms, 300, 0, MILLIS);
 Ticker timer_1sek(Loop_1sek, 1000, 0, MILLIS);
 Ticker timer_10sek(Loop_10sek, 10000, 0, MILLIS);
 
-
 IPAddress local_IP(192, 168, 1, 14);
 IPAddress gateway(192, 168, 1, 1);
 IPAddress subnet(255, 255, 255, 0);
@@ -53,6 +52,7 @@ IPAddress primaryDNS(8, 8, 8, 8);	// optional
 IPAddress secondaryDNS(8, 8, 4, 4); // optional
 
 TaskHandle_t TWAI_RX_task_hndl;
+TaskHandle_t TestovanieDosky_task_hndl;
 
 char gloBuff[200];
 bool LogEnebleWebPage = false;
@@ -126,6 +126,16 @@ void setup()
 		 1,						// Priority
 		 &TWAI_RX_task_hndl, // handle
 		 0							// CPU
+	);
+
+	xTaskCreatePinnedToCore(
+		 TestovanieDosky_Task,		  // Task function
+		 "task2",						  // Name
+		 6000,							  // Stack size
+		 nullptr,						  // Parameters
+		 1,								  // Priority
+		 &TestovanieDosky_task_hndl, // handle
+		 0									  // CPU
 	);
 }
 
@@ -271,7 +281,7 @@ void Loop_10sek(void)
 
 void OdosliCasDoWS(void)
 {
-	JSONVar ObjDatumCas; 
+	JSONVar ObjDatumCas;
 	ObjDatumCas["Cas"] = "--:--";
 	String jsonString = JSON.stringify(ObjDatumCas);
 	Serial.print("[10sek] Odosielam strankam ws Cas:");
@@ -283,8 +293,8 @@ void DebugMsgToWebSocket(String textik)
 {
 	if (LogEnebleWebPage == true)
 	{
-		String sprava = "--:--"; //rtc.getTime("%H:%M:%S ");
-		JSON_DebugMsg["DebugMsg"] = sprava + textik;
+		// String sprava = "--:--"; //rtc.getTime("%H:%M:%S ");
+		JSON_DebugMsg["DebugMsg"] = textik; // + sprava;
 		String jsonString = JSON.stringify(JSON_DebugMsg);
 		ws.textAll(jsonString);
 	}
@@ -465,5 +475,16 @@ void TWAI_RX_Task(void *arg)
 		}
 
 		delay(10);
+	}
+}
+
+void TestovanieDosky_Task(void *arg)
+{
+	log_i("Spustam Task Testovanie Dosky");
+
+	while (1)
+	{
+		//log_i("Loop Task Testovanie Dosky");
+		delay(100);
 	}
 }
