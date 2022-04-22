@@ -4,13 +4,8 @@
 #include <Arduino.h>
 //#include "SPI.h"
 #include "define.h"
-//#include <ESPAsyncWebServer.h>
 #include "constants.h"
-//#include "WizChip_my_API.h"
-#include <ESP32Time.h>
 #include <Arduino_JSON.h>
-//#include <Wire.h>
-//#include "pcf8563.h"
 
 typedef int32_t i32;
 typedef int16_t i16;
@@ -24,30 +19,7 @@ typedef const uint32_t uc32; /*!< Read Only */
 typedef const uint16_t uc16; /*!< Read Only */
 typedef const uint8_t uc8;	 /*!< Read Only */
 
-typedef struct
-{
-	u8 Prea;
-	u8 Fram;
-	u8 DSTadress; //cilova adresa
-	u8 SCRadress; //zdrojova adresa
-	u8 SQCnum;
-	u8 CMD;
-	u8 MsgID;
-	u16 Data_count; //7,8
-	u8 sumaHead;
-	u8 sumaData;
-	u8 *data;
-} AIR_PACKET_t;
 
-typedef struct
-{
-	long PosixTime;
-	uint8_t zaznamID;
-	uint8_t data[100];
-	uint8_t pocetDat;
-	//uint8_t  suma;
-
-} ZAZNAM_t;
 
 #define maxPocetZaznamov 1000
 #define maxVelkostLogBuffera 15000
@@ -57,7 +29,6 @@ typedef struct
 	u16 PocetZaznamov;
 	u16 BufferIndex;
 	u16 AdresList[maxPocetZaznamov];
-	ZAZNAM_t zaznam;
 } LOGBUFF_t;
 
 //definovani ID  sprav
