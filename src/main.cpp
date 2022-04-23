@@ -78,11 +78,11 @@ bool Task_test_inProces = false;
 void setup()
 {
 	Serial.begin(115200);
-	Serial.println("*********************************************************************************");
-	Serial.println("* 											*");
-	Serial.println("* 	Spustam applikaciu.1233						*");
-	Serial.println("* 											*");
-	Serial.println("*********************************************************************************");
+	Serial.println("        *********************************************************************************");
+	Serial.println("        *                                                                               *");
+	Serial.println("        *                            Spustam applikaciu 1                               *");
+	Serial.println("        *                                                                               *");
+	Serial.println("        *********************************************************************************");
 	System_init();
 
 	ESPinfo();
@@ -538,7 +538,7 @@ void TestovanieDosky_Task(void *arg)
 				}
 			}
 
-			log_i("Konec testu davam hlvny looo alebo Kill tasku, ");
+			log_i("Konec testu davam Kill tasku, ");
 			semafor.Task_test_inProces = false;
 			vTaskDelete( TestovanieDosky_task_hndl );
 		}
