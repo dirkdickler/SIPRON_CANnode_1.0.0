@@ -1,8 +1,13 @@
 ﻿#ifndef __DEFINE_H
 #define __DEFINE_H
 
-#define TCP_debug 1
-#define  pocetHTTPspojeni 2
+
+#define HI(ii) ( ii >> 8)
+#define LO(ii) ( ii & 0xff)
+#define sbi(adr,bitt) (adr|=(((uint64_t)1)<<bitt))
+#define cbi(adr,bitt) (adr&=~(((uint64_t)1)<<bitt))
+#define isbit(adr,bitt) (adr &(((uint64_t)1)<<bitt))
+
 #define  TX_RX_MAX_BUF_SIZE 4096
 #define TCP_10001_socket 3
 
@@ -27,7 +32,18 @@
 #define input6 5
 #define input7 6
 #define input8 7
+#define output1 1
+#define output2 2
+#define output3 3
+#define output4 4
+#define output5 5
+#define output6 6
+#define output7 7
+#define output8 8
+
+
 #define pocetDIN 8
+#define pocetDO 8
 #define filterTime_DI 3  //10ms loop
 #define pocetADR 7
 #define WDT_TIMEOUT 5

@@ -71,13 +71,14 @@ typedef struct
 #define NOKcode_missingData 3	//chynaju data v pakete
 #define NOKcode_naznamyMSGID 4	//
 
-extern const char *soft_ap_ssid;
-extern const char *soft_ap_password;
+extern  const char *soft_ap_ssid;
+extern  const char *soft_ap_password;
 extern AsyncWebServer server;
 extern AsyncWebSocket ws;
 
 extern VSTUP_t DIN[pocetDIN];
 extern VSTUP_t ADR[pocetADR];
+extern VYSTUP_t DO[pocetDO];
 extern char NazovSiete[30];
 extern char Heslo[30];
 extern IPAddress local_IP;

@@ -96,23 +96,24 @@ typedef struct
 	bool zmena;
 } VSTUP_t;
 
+typedef struct
+{
+	uint16_t pin;
+	bool output;
+	uint8_t output_prew;
+	uint16_t timeout_ON;
+	uint16_t timeout_OFF;
+}VYSTUP_t;
 typedef struct //
 {
-	bool PeriodickyOdosielajZaznamyzBuffera = false;
-	bool RTCinit_done;
-	bool eth_connect;
-	bool test_spustDNS;
-	bool SDkarta_OK;
-	bool analog10sek_uz_ulozoeny;
 	bool minutaPerioda_uz_spracovana;
 
 } FLAGS_t;
 
 typedef struct //
 {
-	u8 RAM_DISK_analog_lock;
-	u8 RAM_DISK_Input_lock;
-	u8 RAM_DISK_power_lock;
+	bool Task_test_inProces;
+	
 } SEMAFOR_t;
 
 typedef struct //
@@ -124,14 +125,8 @@ typedef struct //
 	u8 socketCloseTimeout; // sek cas kedy sa musi zatvorit socket ak mu nepride MAC akoze opravnena protistrana
 }TIMERS_t;
 
-typedef struct //
-{
-	uint8_t byte;
-} DigitalOUT_t;
-
 extern SEMAFOR_t semafor;
 extern FLAGS_t flg;
 extern TIMERS_t myTimer;
-extern DigitalOUT_t DO[];
 
 #endif

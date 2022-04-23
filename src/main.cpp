@@ -27,8 +27,8 @@
 // Replace with your network credentials
 // const char* ssid = "Grabcovi";
 // const char* password = "40177298";
-const char *soft_ap_ssid = "aDum_Server";
-const char *soft_ap_password = "aaaaaaaaaa";
+const char *soft_ap_ssid = "SipronCAN xx:xx:xx:xx:xx:xx";
+const char *soft_ap_password = "Sipron";
 // const char *ssid = "semiart";
 // const char *password = "aabbccddff";
 char NazovSiete[30];
@@ -61,10 +61,14 @@ LOGBUFF_t LogBuffer;
 
 VSTUP_t DIN[pocetDIN];
 VSTUP_t ADR[pocetADR];
+VYSTUP_t DO[pocetDO];
+SEMAFOR_t semafor;
 u8 CANadresa = 0;
 static const uint32_t DESIRED_BIT_RATE = 125UL * 1000UL; // 125kb/s
 
 char TX_BUF[TX_RX_MAX_BUF_SIZE];
+bool Task_test_inProces = false;
+
 //------------------------------------------------------------------------------------------------------------------
 
 /**********************************************************
@@ -74,11 +78,11 @@ char TX_BUF[TX_RX_MAX_BUF_SIZE];
 void setup()
 {
 	Serial.begin(115200);
-	Serial.println("*********************************************************************************************************");
-	Serial.println("* 																																		*");
-	Serial.println("* 														Spustam applikaciu.1233													*");
-	Serial.println("* 																																		*");
-	Serial.println("*********************************************************************************************************");
+	Serial.println("*********************************************************************************");
+	Serial.println("* 											*");
+	Serial.println("* 	Spustam applikaciu.1233						*");
+	Serial.println("* 											*");
+	Serial.println("*********************************************************************************");
 	System_init();
 
 	ESPinfo();
@@ -186,6 +190,7 @@ void Loop_10ms()
 {
 	ScanInputs();
 	Read_DIPAdress(&CANadresa);
+	Output_Handler();
 }
 
 void Loop_100ms(void)
@@ -258,7 +263,7 @@ void Loop_1sek(void)
 	log_i("HEAP free:%s", locBuf);
 
 	String rr = "[1sek Loop] signalu: " + (String)WiFi.RSSI() + "dBm  a Heap: " + locBuf + " kB " +
-					" ....\r\n ";
+					" CAN adr: " + CANadresa + " ..\r\n ";
 
 	DebugMsgToWebSocket(rr);
 }
@@ -480,11 +485,64 @@ void TWAI_RX_Task(void *arg)
 
 void TestovanieDosky_Task(void *arg)
 {
+	delay(3000);
 	log_i("Spustam Task Testovanie Dosky");
+	u8 Error1 = 0;
 
+	semafor.Task_test_inProces = true;
 	while (1)
 	{
-		//log_i("Loop Task Testovanie Dosky");
+		if (semafor.Task_test_inProces == true)
+		{
+			// zhodim vystupy
+			log_i("Zhozdujem vsetky vystupy");
+			for (int i = 0; i < pocetDIN; i++)
+			{
+				DO[i].output = false;
+			}
+
+			Output_Handler();
+			delay(100);
+
+			for (int i = 0; i < pocetDIN; i++)
+			{
+				// na zacatku musia byt ALL IN  = 0
+				if (DIN[i].input == true)
+				{
+					sbi(Error1, i);
+				}
+			}
+
+			if (Error1)
+			{
+				log_i("!!! Problem tu musia byt vystupy OFF< ale ich obraz je:%u", Error1);
+			}
+			else
+			{
+				log_i("JE to dobre vsetky vystupy si OFF");
+			}
+
+			log_i("Idem nahodit vystup jeden po druhem a otestovat ci sa danny vstup nahodi");
+			for (int i = 0; i < pocetDIN; i++)
+			{
+				DO[i].output = true;
+				Output_Handler();
+				delay(50);
+				if (DIN[i].input == false)
+				{
+					log_i("Nahadzujem vystup %u, ale jeho DIN je FALSE !!!  chyba ", i);
+				}
+				else
+				{
+					log_i("Nahadzujem vystup %u, a jeho DIN je TRUE  supeer to je OK", i);
+				}
+			}
+
+			log_i("Konec testu davam hlvny looo alebo Kill tasku, ");
+			semafor.Task_test_inProces = false;
+			vTaskDelete( TestovanieDosky_task_hndl );
+		}
+		// log_i("Loop Task Testovanie Dosky");
 		delay(100);
 	}
 }
