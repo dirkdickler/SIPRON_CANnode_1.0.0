@@ -260,7 +260,7 @@ void Loop_1sek(void)
 	flt /= 1000.0f;
 	char locBuf[50];
 	sprintf(locBuf, "%.3f", flt);
-	log_i("HEAP free:%s", locBuf);
+	log_i("HEAP free:%s  a CAN adresa: %u", locBuf,CANadresa);
 
 	String rr = "[1sek Loop] signalu: " + (String)WiFi.RSSI() + "dBm  a Heap: " + locBuf + " kB " +
 					" CAN adr: " + CANadresa + " ..\r\n ";
@@ -276,9 +276,9 @@ void Loop_10sek(void)
 	// Serial.println(sprava);
 
 	{
-		float testVal = 23.456f;
-		float testVal2 = 34.567f;
-		log_i("Float hodnoty 1: %f    2:%f ", testVal, testVal2);
+		//float testVal = 23.456f;
+		//float testVal2 = 34.567f;
+		//log_i("Float hodnoty 1: %f    2:%f ", testVal, testVal2);
 	}
 
 	// WiFi_connect_sequencer();
