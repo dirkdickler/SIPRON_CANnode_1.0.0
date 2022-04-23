@@ -3,7 +3,7 @@
 #include <elegantWebpage.h>
 
 #include <Arduino_JSON.h>
-//#include <TimeLib.h>
+#include <constants.h>
 //#include "SD.h"
 #include <EEPROM.h>
 #include "main.h" //kvolu u8,u16..
@@ -210,10 +210,6 @@ void ScanInputs(void)
 		DIN[i].zmena = Input_digital_filtering(&DIN[i], filterTime_DI);
 		if (DIN[i].zmena == true)
 		{
-			// LogBuffer.zaznam.PosixTime = rtc.getEpoch();
-			// LogBuffer.zaznam.zaznamID = IDzaznamu_IN1 + i;
-			// LogBuffer.zaznam.pocetDat = 1;
-
 			if (DIN[i].input == true)
 			{
 				DIN[i].counter++;
@@ -277,6 +273,14 @@ void System_init(void)
 	ADR[4].pin = Adr5_pin;
 	ADR[5].pin = Adr6_pin;
 	ADR[6].pin = Adr7_pin;
+	DO[output1].pin = DO1_pin;
+	DO[output2].pin = DO2_pin;
+	DO[output3].pin = DO3_pin;
+	DO[output4].pin = DO4_pin;
+	DO[output5].pin = DO5_pin;
+	DO[output6].pin = DO6_pin;
+	DO[output7].pin = DO7_pin;
+	DO[output8].pin = DO8_pin;
 
 	pinMode(DI1_pin, INPUT_PULLUP);
 	pinMode(DI2_pin, INPUT_PULLUP);
@@ -305,9 +309,25 @@ void System_init(void)
 	pinMode(DO7_pin, OUTPUT);
 	pinMode(DO8_pin, OUTPUT);
 
+	semafor.Task_test_inProces = false;
+
 	log_i("[Func:System_init]  end..");
 }
 
+void Output_Handler(void)
+{
+	for (int i = 0; i < pocetDO; i++)
+	{
+		if (DO[i].output == true)
+		{
+			digitalWrite(DO[i].pin, 1);
+		}
+		else
+		{
+			digitalWrite(DO[i].pin, 0);
+		}
+	}
+}
 int8_t NacitajEEPROM_setting(void)
 {
 	if (!EEPROM.begin(500))
@@ -438,12 +458,22 @@ void onEvent(AsyncWebSocket *server,
 		break;
 	}
 }
-
+//static char NazovAP_bodu[50] = {0,}; 
 void WiFi_init(void)
 {
+	String ree = "SipronCAN ";
+	char NazovAP_bodu[50] = {0,}; 
+	const char *adrPTR = NazovAP_bodu;
+	
+	//adrPTR = WiFi.macAddress(&NazovAP_bodu[10]);
+	ree += WiFi.macAddress();
+	adrPTR = ree.c_str();
+
+	Serial.print("ESP Board MAC Address:  ");
+	Serial.println(WiFi.macAddress());
 	WiFi.mode(WIFI_MODE_APSTA);
 	log_i("Creating Accesspoint");
-	WiFi.softAP(soft_ap_ssid, soft_ap_password, 7, 0, 3);
+	WiFi.softAP((const char*)adrPTR, "sipronAPnode", 7, 0, 3);
 	Serial.print("IP address:");
 	Serial.println(WiFi.softAPIP());
 
