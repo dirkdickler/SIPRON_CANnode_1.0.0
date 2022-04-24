@@ -32,14 +32,14 @@
 #define input6 5
 #define input7 6
 #define input8 7
-#define output1 1
-#define output2 2
-#define output3 3
-#define output4 4
-#define output5 5
-#define output6 6
-#define output7 7
-#define output8 8
+#define output1 0
+#define output2 1
+#define output3 2
+#define output4 3
+#define output5 4
+#define output6 5
+#define output7 6
+#define output8 7
 
 
 #define pocetDIN 8

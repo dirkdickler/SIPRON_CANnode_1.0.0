@@ -200,7 +200,7 @@ static bool Input_digital_filtering(VSTUP_t *input_struct, uint16_t filterCas)
 	}
 }
 
-void ScanInputs(void)
+u8 ScanInputs(void)
 {
 	// Serial.println("[ScanInputs] begin..");
 	bool bolaZmenaVstupu = false;
@@ -233,9 +233,27 @@ void ScanInputs(void)
 	// {
 	// 	DIN[u].input_prew = DIN[u].input;
 	// }
+	u8 loca = 0;
+	if (DIN[0].input == true)
+		sbi(loca, 0);
+	if (DIN[1].input == true)
+		sbi(loca, 1);
+	if (DIN[2].input == true)
+		sbi(loca, 2);
+	if (DIN[3].input == true)
+		sbi(loca, 3);
+	if (DIN[4].input == true)
+		sbi(loca, 4);
+	if (DIN[5].input == true)
+		sbi(loca, 5);
+	if (DIN[6].input == true)
+		sbi(loca, 6);
+	if (DIN[7].input == true)
+		sbi(loca, 7);
+	return loca;
 }
 
-void Read_DIPAdress(u8 *CANadresa)
+u8 Read_DIPAdress(void)
 {
 	// Serial.println("[ScanInputs] begin..");
 	bool bolaZmenaVstupu = false;
@@ -253,6 +271,37 @@ void Read_DIPAdress(u8 *CANadresa)
 	{
 		log_i("-hlasi ze mam zmenu na vstupoch....");
 	}
+
+	u8 loca = 0;
+	if (ADR[0].input == true)
+	{
+		sbi(loca, 0);
+	}
+	if (ADR[1].input == true)
+	{
+		sbi(loca, 1);
+	}
+	if (ADR[2].input == true)
+	{
+		sbi(loca, 2);
+	}
+	if (ADR[3].input == true)
+	{
+		sbi(loca, 3);
+	}
+	if (ADR[4].input == true)
+	{
+		sbi(loca, 4);
+	}
+	if (ADR[5].input == true)
+	{
+		sbi(loca, 5);
+	}
+	if (ADR[6].input == true)
+	{
+		sbi(loca, 6);
+	}
+	return loca;
 }
 
 void System_init(void)
@@ -262,10 +311,10 @@ void System_init(void)
 	DIN[input2].pin = DI2_pin;
 	DIN[input3].pin = DI3_pin;
 	DIN[input4].pin = DI4_pin;
-	DIN[input1].pin = DI5_pin;
-	DIN[input2].pin = DI6_pin;
-	DIN[input3].pin = DI7_pin;
-	DIN[input4].pin = DI8_pin;
+	DIN[input5].pin = DI5_pin;
+	DIN[input6].pin = DI6_pin;
+	DIN[input7].pin = DI7_pin;
+	DIN[input8].pin = DI8_pin;
 	ADR[0].pin = Adr1_pin;
 	ADR[1].pin = Adr2_pin;
 	ADR[2].pin = Adr3_pin;
@@ -314,19 +363,22 @@ void System_init(void)
 	log_i("[Func:System_init]  end..");
 }
 
-void Output_Handler(void)
+u8 Output_Handler(void)
 {
+	u8 loca = 0;
 	for (int i = 0; i < pocetDO; i++)
 	{
 		if (DO[i].output == true)
 		{
 			digitalWrite(DO[i].pin, 1);
+			sbi(loca, i);
 		}
 		else
 		{
 			digitalWrite(DO[i].pin, 0);
 		}
 	}
+	return loca;
 }
 int8_t NacitajEEPROM_setting(void)
 {
@@ -458,40 +510,43 @@ void onEvent(AsyncWebSocket *server,
 		break;
 	}
 }
-//static char NazovAP_bodu[50] = {0,}; 
+// static char NazovAP_bodu[50] = {0,};
 void WiFi_init(void)
 {
 	String ree = "SipronCAN ";
-	char NazovAP_bodu[50] = {0,}; 
+	char NazovAP_bodu[50] = {
+		 0,
+	};
 	const char *adrPTR = NazovAP_bodu;
-	
-	//adrPTR = WiFi.macAddress(&NazovAP_bodu[10]);
+
+	// adrPTR = WiFi.macAddress(&NazovAP_bodu[10]);
 	ree += WiFi.macAddress();
 	adrPTR = ree.c_str();
 
 	Serial.print("ESP Board MAC Address:  ");
 	Serial.println(WiFi.macAddress());
-	WiFi.mode(WIFI_MODE_APSTA);
+	//WiFi.mode(WIFI_MODE_APSTA);
+	WiFi.mode(WIFI_MODE_AP);
 	log_i("Creating Accesspoint");
-	WiFi.softAP((const char*)adrPTR, "sipronAPnode", 7, 0, 3);
+	WiFi.softAP((const char *)adrPTR, "sipronAPnode", 7, 0, 3);
 	Serial.print("IP address:");
 	Serial.println(WiFi.softAPIP());
 
-	if (!WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS))
-	{
-		log_i("STA Failed to configure");
-	}
+	// if (!WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS))
+	// {
+	// 	log_i("STA Failed to configure");
+	// }
 
-	WiFi.begin(NazovSiete, Heslo);
-	u8_t aa = 0;
-	while (WiFi.waitForConnectResult() != WL_CONNECTED && aa < 2)
-	{
-		Serial.print(".");
-		aa++;
-	}
-	// Print ESP Local IP Address
-	Serial.print("Local IP adress:");
-	Serial.println(WiFi.localIP());
+	// WiFi.begin(NazovSiete, Heslo);
+	// u8_t aa = 0;
+	// while (WiFi.waitForConnectResult() != WL_CONNECTED && aa < 2)
+	// {
+	// 	Serial.print(".");
+	// 	aa++;
+	// }
+	// // Print ESP Local IP Address
+	// Serial.print("Local IP adress:");
+	// Serial.println(WiFi.localIP());
 
 	ws.onEvent(onEvent);		// initWebSocket();
 	server.addHandler(&ws); // initWebSocket();

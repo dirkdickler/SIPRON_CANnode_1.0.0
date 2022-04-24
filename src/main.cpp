@@ -64,6 +64,9 @@ VSTUP_t ADR[pocetADR];
 VYSTUP_t DO[pocetDO];
 SEMAFOR_t semafor;
 u8 CANadresa = 0;
+u8 Obraz_DIN = 0;
+u8 Obraz_DO = 0;
+
 static const uint32_t DESIRED_BIT_RATE = 125UL * 1000UL; // 125kb/s
 
 char TX_BUF[TX_RX_MAX_BUF_SIZE];
@@ -188,9 +191,13 @@ void Loop_1ms()
 
 void Loop_10ms()
 {
-	ScanInputs();
-	Read_DIPAdress(&CANadresa);
-	Output_Handler();
+	Obraz_DIN = ScanInputs();
+	CANadresa = Read_DIPAdress();
+	for (int i = 0; i <pocetDIN;i++){
+		DO[i].output = DIN[i].input;
+	}
+	
+	Obraz_DO = Output_Handler();
 }
 
 void Loop_100ms(void)
@@ -217,22 +224,29 @@ void Loop_100ms(void)
 
 void Loop_1sek(void)
 {
+	static bool LEDka = false;
 	// log_i("[1sek Loop]  mam 1 sek....  ");
 	String sprava; // = rtc.getTime("\r\n[%H:%M:%S] karta a toto cas z PCF8563:");
 						// unsigned long start = micros();
-	// sprava += PCFrtc.formatDateTime(PCF_TIMEFORMAT_YYYY_MM_DD_H_M_S);
-	// unsigned long end = micros();
-	// unsigned long delta = end - start;
-	// Serial.print("DELTA PCF8563: ");
-	// Serial.println(delta);
+						// sprava += PCFrtc.formatDateTime(PCF_TIMEFORMAT_YYYY_MM_DD_H_M_S);
+						// unsigned long end = micros();
+						// unsigned long delta = end - start;
+						// Serial.print("DELTA PCF8563: ");
+						// Serial.println(delta);
 
-	if (digitalRead(LED_pin) == 1)
+	log_i("Takto vidim LED ku %u", digitalRead(LED_pin));
+	log_i("Takto vidim DO8  %u", digitalRead(DO8_pin));
+	if (LEDka == false) // digitalRead(LED_pin) == 0)
 	{
-		digitalWrite(LED_pin, 0);
+		LEDka = true;
+		digitalWrite(LED_pin, 1);
+		log_i("LED davam na 1");
 	}
 	else
 	{
-		digitalWrite(LED_pin, 1);
+		LEDka = false;
+		digitalWrite(LED_pin, 0);
+		log_i("LED davam na 0");
 	}
 
 	// log_i("posielam CAN frame");
@@ -249,7 +263,7 @@ void Loop_1sek(void)
 	// Queue message for transmission
 	if (0) // twai_transmit(&message, pdMS_TO_TICKS(1000)) == ESP_OK)
 	{
-		log_i("Message queued for transmission\n");
+		log_i("Message queued for transmission");
 	}
 	else
 	{
@@ -260,10 +274,10 @@ void Loop_1sek(void)
 	flt /= 1000.0f;
 	char locBuf[50];
 	sprintf(locBuf, "%.3f", flt);
-	log_i("HEAP free:%s  a CAN adresa: %u", locBuf,CANadresa);
+	log_i("HEAP free:%s - CAN adresa: %u - Vstupy: %u - Vystupy: %u", locBuf, CANadresa, Obraz_DIN, Obraz_DO);
 
 	String rr = "[1sek Loop] signalu: " + (String)WiFi.RSSI() + "dBm  a Heap: " + locBuf + " kB " +
-					" CAN adr: " + CANadresa + " ..\r\n ";
+					" CAN adr: " + CANadresa + "  Vstupy: " + Obraz_DIN + "  Vystupy: " + Obraz_DO + "\r\n ";
 
 	DebugMsgToWebSocket(rr);
 }
@@ -276,9 +290,9 @@ void Loop_10sek(void)
 	// Serial.println(sprava);
 
 	{
-		//float testVal = 23.456f;
-		//float testVal2 = 34.567f;
-		//log_i("Float hodnoty 1: %f    2:%f ", testVal, testVal2);
+		// float testVal = 23.456f;
+		// float testVal2 = 34.567f;
+		// log_i("Float hodnoty 1: %f    2:%f ", testVal, testVal2);
 	}
 
 	// WiFi_connect_sequencer();
@@ -540,7 +554,7 @@ void TestovanieDosky_Task(void *arg)
 
 			log_i("Konec testu davam Kill tasku, ");
 			semafor.Task_test_inProces = false;
-			vTaskDelete( TestovanieDosky_task_hndl );
+			vTaskDelete(TestovanieDosky_task_hndl);
 		}
 		// log_i("Loop Task Testovanie Dosky");
 		delay(100);

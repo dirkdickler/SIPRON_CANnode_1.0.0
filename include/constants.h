@@ -88,7 +88,7 @@ typedef struct
 {
 	u8 typVstupu; //klasika,citac,ci ma automaticky padat fo nule
 	u16 pin;
-	u8 input;
+	bool input;
 	u8 input_prew;
 	u16 filter;
 	u32 counter;
