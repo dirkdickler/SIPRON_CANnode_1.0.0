@@ -57,7 +57,6 @@ TaskHandle_t TestovanieDosky_task_hndl;
 char gloBuff[200];
 bool LogEnebleWebPage = false;
 FLAGS_t flg;
-LOGBUFF_t LogBuffer;
 
 VSTUP_t DIN[pocetDIN];
 VSTUP_t ADR[pocetADR];
@@ -111,8 +110,8 @@ void setup()
 
 	NacitajEEPROM_setting();
 
-	WiFi_init(); // este si odkomentuj  //WiFi_connect_sequencer(); v 10 sek loop
-	// configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
+	// WiFi_init(); // este si odkomentuj  //WiFi_connect_sequencer(); v 10 sek loop
+	//  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
 
 	timer_1ms.start();
 	timer_10ms.start();
@@ -193,11 +192,23 @@ void Loop_10ms()
 {
 	Obraz_DIN = ScanInputs();
 	CANadresa = Read_DIPAdress();
-	for (int i = 0; i <pocetDIN;i++){
+	for (int i = 0; i < pocetDIN; i++)
+	{
 		DO[i].output = DIN[i].input;
 	}
-	
+
 	Obraz_DO = Output_Handler();
+
+	if (digitalRead(Boot_pin) == 0)
+	{
+		if (flg.Wifi_zapnuta == false)
+		{
+			log_i("!!!!  Zapinam WIFI !!! ");
+			WiFi_init();
+			flg.Wifi_zapnuta = true;
+			myTimer.Wifi_ON_timeout = 60*10; // sekund
+		}
+	}
 }
 
 void Loop_100ms(void)
@@ -233,6 +244,16 @@ void Loop_1sek(void)
 						// unsigned long delta = end - start;
 						// Serial.print("DELTA PCF8563: ");
 						// Serial.println(delta);
+
+	if (myTimer.Wifi_ON_timeout)
+	{
+		if (--myTimer.Wifi_ON_timeout == 0)
+		{
+			log_i("Ubehol cas zapnutia Wifi - vypinam Wifinu");
+			WiFi.enableAP(false);
+			flg.Wifi_zapnuta = false; //
+		}
+	}
 
 	log_i("Takto vidim LED ku %u", digitalRead(LED_pin));
 	log_i("Takto vidim DO8  %u", digitalRead(DO8_pin));
