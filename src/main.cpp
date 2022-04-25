@@ -41,7 +41,7 @@ AsyncWebSocket ws("/ws");
 JSONVar myObject, myObject2, JSON_DebugMsg;
 Ticker timer_1ms(Loop_1ms, 1, 0, MILLIS);
 Ticker timer_10ms(Loop_10ms, 10, 0, MILLIS);
-Ticker timer_100ms(Loop_100ms, 300, 0, MILLIS);
+Ticker timer_100ms(Loop_100ms, 100, 0, MILLIS);
 Ticker timer_1sek(Loop_1sek, 1000, 0, MILLIS);
 Ticker timer_10sek(Loop_10sek, 10000, 0, MILLIS);
 
@@ -192,11 +192,6 @@ void Loop_10ms()
 {
 	Obraz_DIN = ScanInputs();
 	CANadresa = Read_DIPAdress();
-	for (int i = 0; i < pocetDIN; i++)
-	{
-		DO[i].output = DIN[i].input;
-	}
-
 	Obraz_DO = Output_Handler();
 
 	if (digitalRead(Boot_pin) == 0)
@@ -206,9 +201,11 @@ void Loop_10ms()
 			log_i("!!!!  Zapinam WIFI !!! ");
 			WiFi_init();
 			flg.Wifi_zapnuta = true;
-			myTimer.Wifi_ON_timeout = 60*10; // sekund
+			myTimer.Wifi_ON_timeout = 60 * 10; // sekund
 		}
 	}
+
+	
 }
 
 void Loop_100ms(void)
@@ -231,11 +228,12 @@ void Loop_100ms(void)
 	{
 		// log_i("Failed to queue message for transmission\n");
 	}
+	if ( flg.Wifi_zapnuta == true) { LEDblinker();}
 }
 
 void Loop_1sek(void)
 {
-	static bool LEDka = false;
+
 	// log_i("[1sek Loop]  mam 1 sek....  ");
 	String sprava; // = rtc.getTime("\r\n[%H:%M:%S] karta a toto cas z PCF8563:");
 						// unsigned long start = micros();
@@ -254,21 +252,7 @@ void Loop_1sek(void)
 			flg.Wifi_zapnuta = false; //
 		}
 	}
-
-	log_i("Takto vidim LED ku %u", digitalRead(LED_pin));
-	log_i("Takto vidim DO8  %u", digitalRead(DO8_pin));
-	if (LEDka == false) // digitalRead(LED_pin) == 0)
-	{
-		LEDka = true;
-		digitalWrite(LED_pin, 1);
-		log_i("LED davam na 1");
-	}
-	else
-	{
-		LEDka = false;
-		digitalWrite(LED_pin, 0);
-		log_i("LED davam na 0");
-	}
+	if ( flg.Wifi_zapnuta == false) { LEDblinker();}
 
 	// log_i("posielam CAN frame");
 	// twai_message_t message;
@@ -527,7 +511,7 @@ void TestovanieDosky_Task(void *arg)
 	semafor.Task_test_inProces = true;
 	while (1)
 	{
-		if (semafor.Task_test_inProces == true)
+		if (0) // semafor.Task_test_inProces == true)
 		{
 			// zhodim vystupy
 			log_i("Zhozdujem vsetky vystupy");
