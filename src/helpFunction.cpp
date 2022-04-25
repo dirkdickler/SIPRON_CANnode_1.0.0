@@ -307,6 +307,7 @@ u8 Read_DIPAdress(void)
 void System_init(void)
 {
 	log_i("[Func:System_init]  begin..");
+
 	DIN[input1].pin = DI1_pin;
 	DIN[input2].pin = DI2_pin;
 	DIN[input3].pin = DI3_pin;
@@ -359,6 +360,7 @@ void System_init(void)
 	pinMode(DO8_pin, OUTPUT);
 
 	semafor.Task_test_inProces = false;
+	flg.posti_Wifi = false;
 
 	log_i("[Func:System_init]  end..");
 }
@@ -531,6 +533,7 @@ void WiFi_init(void)
 	WiFi.softAP((const char *)adrPTR, "sipronAPnode", 7, 0, 3);
 	Serial.print("IP address:");
 	Serial.println(WiFi.softAPIP());
+	
 
 	// if (!WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS))
 	// {
@@ -846,7 +849,7 @@ bool KontrolujBufferZdaObsaujeJSONdata(char JSONbuffer[])
 			{
 				//{"Cas":"2021:9:22:13:15:16 "}
 				// Ked v JSON dosje "Cas", takto beru ze na druhej strane je opravneny server a mazy flag vynuteneho Close soketu
-				myTimer.socketCloseTimeout = 0;
+				
 				// flg.PeriodickyOdosielajZaznamyzBuffera = true;
 
 				ComDebug("myObject ma CAS JSON");

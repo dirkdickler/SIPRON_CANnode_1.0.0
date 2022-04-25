@@ -1,6 +1,7 @@
 #ifndef PIN_ASSIGMENT_H
 #define PIN_ASSIGMENT_H
 
+
 #define DI8_pin 1
 #define DI7_pin 2
 #define DI6_pin 3
@@ -26,6 +27,7 @@
 #define Adr7_pin 41
 
 #define LED_pin 42
+#define Boot_pin 0
 
 #define CAN_RxD  34
 #define CAN_TxD  33

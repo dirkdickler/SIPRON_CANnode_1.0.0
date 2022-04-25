@@ -106,8 +106,8 @@ typedef struct
 }VYSTUP_t;
 typedef struct //
 {
-	bool minutaPerioda_uz_spracovana;
-
+	bool posti_Wifi;
+	bool Wifi_zapnuta;
 } FLAGS_t;
 
 typedef struct //
@@ -118,11 +118,7 @@ typedef struct //
 
 typedef struct //
 {
-	uint16_t hodina;
-	uint8_t OutPut_DisableTimeout_sec;
-	uint8_t sekunda;
-	uint16_t GET_request_timeout;
-	u8 socketCloseTimeout; // sek cas kedy sa musi zatvorit socket ak mu nepride MAC akoze opravnena protistrana
+	u8 Wifi_ON_timeout;
 }TIMERS_t;
 
 extern SEMAFOR_t semafor;
