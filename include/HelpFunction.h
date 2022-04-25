@@ -55,6 +55,6 @@ bool OdosliZaznamDosocketu(LOGBUFF_t *logBuffStruc);
 bool UlozZaznam(LOGBUFF_t *logBuffStruc);
 String VyberZaznam( LOGBUFF_t *logBuffStruc, bool zmazZaznam);
 u16 VratPocetZaznamu(LOGBUFF_t *logBuffStruc);
-
+void LEDblinker(void);
 
 #endif

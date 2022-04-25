@@ -19,6 +19,7 @@
         "can.h": "c",
         "can_regdef.h": "c",
         "dport_reg.h": "c",
-        "soc.h": "c"
+        "soc.h": "c",
+        "limits": "cpp"
     }
 }

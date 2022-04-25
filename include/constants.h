@@ -118,7 +118,7 @@ typedef struct //
 
 typedef struct //
 {
-	u8 Wifi_ON_timeout;
+	u16 Wifi_ON_timeout;
 }TIMERS_t;
 
 extern SEMAFOR_t semafor;
