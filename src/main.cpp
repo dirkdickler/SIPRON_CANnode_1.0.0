@@ -23,6 +23,7 @@
 
 //#include <ACAN_ESP32.h>
 #include "driver/twai.h"
+#include "MyBlinker.h"
 
 // Replace with your network credentials
 // const char* ssid = "Grabcovi";
@@ -70,6 +71,8 @@ static const uint32_t DESIRED_BIT_RATE = 125UL * 1000UL; // 125kb/s
 
 char TX_BUF[TX_RX_MAX_BUF_SIZE];
 bool Task_test_inProces = false;
+
+LedBlinker led(LED_pin, COMMON_NEGATIVE);
 
 //------------------------------------------------------------------------------------------------------------------
 
@@ -143,6 +146,14 @@ void setup()
 		 &TestovanieDosky_task_hndl, // handle
 		 0									  // CPU
 	);
+
+	led.blink(500  /* time on */, 
+             100  /* time off */, 
+             3    /* cycles */, 
+             1000 /* pause between secuences */, 
+             2    /* secuences */, 
+             NULL /* function to call when finished */
+             );
 }
 
 void loop()
@@ -154,6 +165,7 @@ void loop()
 	timer_100ms.update();
 	timer_1sek.update();
 	timer_10sek.update();
+	led.update();
 }
 
 void Loop_1ms()
@@ -228,7 +240,7 @@ void Loop_100ms(void)
 	{
 		// log_i("Failed to queue message for transmission\n");
 	}
-	if ( flg.Wifi_zapnuta == true) { LEDblinker();}
+	//if ( flg.Wifi_zapnuta == true) { LEDblinker();}
 }
 
 void Loop_1sek(void)
@@ -252,7 +264,7 @@ void Loop_1sek(void)
 			flg.Wifi_zapnuta = false; //
 		}
 	}
-	if ( flg.Wifi_zapnuta == false) { LEDblinker();}
+	//if ( flg.Wifi_zapnuta == false) { LEDblinker();}
 
 	// log_i("posielam CAN frame");
 	// twai_message_t message;
