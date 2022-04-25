@@ -179,7 +179,7 @@ void Loop_1ms()
 		for (u16 i = 0; i < 100; i++)
 		{
 			twai_message_t message;
-			message.identifier = 345;
+			message.identifier = 345; 
 			message.extd = 0;
 			message.data_length_code = 1;
 			message.rtr = false;
