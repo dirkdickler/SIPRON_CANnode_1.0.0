@@ -79,7 +79,21 @@ LedBlinker led(LED_pin, COMMON_NEGATIVE);
 /**********************************************************
  ***************        SETUP         **************
  **********************************************************/
-
+void testFinisBkliker()
+{
+	Serial.println("        *********************************************************************************");
+	Serial.println("        *                                                                               *");
+	Serial.println("        *                            FIUnis bklker                             *");
+	Serial.println("        *                                                                               *");
+	Serial.println("        *********************************************************************************");
+	led.blink(200 /* time on */,
+				 200 /* time off */,
+				 2 /* cycles */,
+				 1000 /* pause between secuences */,
+				 5 /* secuences */,
+				 testFinisBkliker /* function to call when finished */
+	);
+}
 void setup()
 {
 	Serial.begin(115200);
@@ -147,13 +161,13 @@ void setup()
 		 0									  // CPU
 	);
 
-	led.blink(500  /* time on */, 
-             100  /* time off */, 
-             3    /* cycles */, 
-             1000 /* pause between secuences */, 
-             2    /* secuences */, 
-             NULL /* function to call when finished */
-             );
+	led.blink(200 /* time on */,
+				 200 /* time off */,
+				 4 /* cycles */,
+				 1000 /* pause between secuences */,
+				 10 /* secuences */,
+				 testFinisBkliker /* function to call when finished */
+	);
 }
 
 void loop()
@@ -179,7 +193,7 @@ void Loop_1ms()
 		for (u16 i = 0; i < 100; i++)
 		{
 			twai_message_t message;
-			message.identifier = 345; 
+			message.identifier = 345;
 			message.extd = 0;
 			message.data_length_code = 1;
 			message.rtr = false;
@@ -216,8 +230,6 @@ void Loop_10ms()
 			myTimer.Wifi_ON_timeout = 60 * 10; // sekund
 		}
 	}
-
-	
 }
 
 void Loop_100ms(void)
@@ -240,7 +252,7 @@ void Loop_100ms(void)
 	{
 		// log_i("Failed to queue message for transmission\n");
 	}
-	//if ( flg.Wifi_zapnuta == true) { LEDblinker();}
+	// if ( flg.Wifi_zapnuta == true) { LEDblinker();}
 }
 
 void Loop_1sek(void)
@@ -264,7 +276,7 @@ void Loop_1sek(void)
 			flg.Wifi_zapnuta = false; //
 		}
 	}
-	//if ( flg.Wifi_zapnuta == false) { LEDblinker();}
+	// if ( flg.Wifi_zapnuta == false) { LEDblinker();}
 
 	// log_i("posielam CAN frame");
 	// twai_message_t message;
