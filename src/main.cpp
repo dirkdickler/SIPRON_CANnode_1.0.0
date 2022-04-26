@@ -73,27 +73,13 @@ char TX_BUF[TX_RX_MAX_BUF_SIZE];
 bool Task_test_inProces = false;
 
 LedBlinker led(LED_pin, COMMON_NEGATIVE);
+LED_INDICATOR_t LEDkaNaDoske;
 
 //------------------------------------------------------------------------------------------------------------------
 
 /**********************************************************
- ***************        SETUP         **************
+ ***************            SETUP            **************
  **********************************************************/
-void testFinisBkliker()
-{
-	Serial.println("        *********************************************************************************");
-	Serial.println("        *                                                                               *");
-	Serial.println("        *                            FIUnis bklker                             *");
-	Serial.println("        *                                                                               *");
-	Serial.println("        *********************************************************************************");
-	led.blink(200 /* time on */,
-				 200 /* time off */,
-				 2 /* cycles */,
-				 1000 /* pause between secuences */,
-				 5 /* secuences */,
-				 testFinisBkliker /* function to call when finished */
-	);
-}
 void setup()
 {
 	Serial.begin(115200);
@@ -160,14 +146,6 @@ void setup()
 		 &TestovanieDosky_task_hndl, // handle
 		 0									  // CPU
 	);
-
-	led.blink(200 /* time on */,
-				 200 /* time off */,
-				 4 /* cycles */,
-				 1000 /* pause between secuences */,
-				 10 /* secuences */,
-				 testFinisBkliker /* function to call when finished */
-	);
 }
 
 void loop()
@@ -228,6 +206,14 @@ void Loop_10ms()
 			WiFi_init();
 			flg.Wifi_zapnuta = true;
 			myTimer.Wifi_ON_timeout = 60 * 10; // sekund
+
+			led.blink(200 /* time on */,
+						 200 /* time off */,
+						 3 /* cycles */,
+						 1000 /* pause between secuences */,
+						 0xffff /* secuences */,
+						 NULL /* function to call when finished */
+			);
 		}
 	}
 }
@@ -267,6 +253,7 @@ void Loop_1sek(void)
 						// Serial.print("DELTA PCF8563: ");
 						// Serial.println(delta);
 
+	log_i("LED blinker pocet opakovani %u", LEDkaNaDoske.pocetOpakovani);
 	if (myTimer.Wifi_ON_timeout)
 	{
 		if (--myTimer.Wifi_ON_timeout == 0)
@@ -274,6 +261,14 @@ void Loop_1sek(void)
 			log_i("Ubehol cas zapnutia Wifi - vypinam Wifinu");
 			WiFi.enableAP(false);
 			flg.Wifi_zapnuta = false; //
+
+			led.blink(200 /* time on */,
+						 200 /* time off */,
+						 1 /* cycles */,
+						 1000 /* pause between secuences */,
+						 0xffff /* secuences */,
+						 NULL /* function to call when finished */
+			);
 		}
 	}
 	// if ( flg.Wifi_zapnuta == false) { LEDblinker();}

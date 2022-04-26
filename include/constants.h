@@ -121,6 +121,17 @@ typedef struct //
 	u16 Wifi_ON_timeout;
 }TIMERS_t;
 
+typedef struct //
+{  
+	u8 pinLedky;
+	u16 time_ON;
+	u16 time_OFF;
+	u8 pocetBkliknuti; //cycles;
+	i16 pauzaMedziOpakovaniami;
+	u16 pocetOpakovani;
+	void(*PTRnaFunkciu());
+}LED_INDICATOR_t;
+
 extern SEMAFOR_t semafor;
 extern FLAGS_t flg;
 extern TIMERS_t myTimer;

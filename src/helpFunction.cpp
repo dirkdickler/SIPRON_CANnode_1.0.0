@@ -362,6 +362,14 @@ void System_init(void)
 	semafor.Task_test_inProces = false;
 	flg.posti_Wifi = false;
 
+	led.blink(200 /* time on */,
+				 200 /* time off */,
+				 1 /* cycles */,
+				 1000 /* pause between secuences */,
+				 0xffff /* secuences */,
+				 NULL /* function to call when finished */
+	);
+
 	log_i("[Func:System_init]  end..");
 }
 
@@ -1000,18 +1008,17 @@ void Double2Bytes(double val, uint8_t *bytes_array)
 
 void LEDblinker(void)
 {
-	static bool LEDka = false; 
+	static bool LEDka = false;
 	if (LEDka == false) // digitalRead(LED_pin) == 0)
 	{
 		LEDka = true;
 		digitalWrite(LED_pin, 1);
-		//log_i("LED davam na 1");
+		// log_i("LED davam na 1");
 	}
 	else
 	{
 		LEDka = false;
 		digitalWrite(LED_pin, 0);
-		//log_i("LED davam na 0");
+		// log_i("LED davam na 0");
 	}
 }
-
