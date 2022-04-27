@@ -298,8 +298,8 @@ void Loop_1sek(void)
 	sprintf(locBuf, "%.3f", flt);
 	log_i("HEAP free:%s - CAN adresa: %u - Vstupy: %u - Vystupy: %u", locBuf, CANadresa, Obraz_DIN, Obraz_DO);
 
-	String rr = "[1sek Loop] signalu: " + (String)WiFi.RSSI() + "dBm  a Heap: " + locBuf + " kB " +
-					" CAN adr: " + CANadresa + "  Vstupy: " + Obraz_DIN + "  Vystupy: " + Obraz_DO + "\r\n ";
+	String rr = "[1sek Loop] signalu: " + (String)WiFi.RSSI() + "dBm" +
+					"  Vstupy: " + Obraz_DIN + "  Vystupy: " + Obraz_DO + "\r\n ";
 
 	DebugMsgToWebSocket(rr);
 }
