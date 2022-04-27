@@ -91,25 +91,6 @@ void setup()
 
 	ESPinfo();
 
-	myObject["Parameter"]["gateway"]["value"] = " 11:22 Strezda";
-	myObject["tes"]["ddd"] = 42;
-	myObject["hello"] = "11:22 Streda";
-	myObject["true"] = true;
-	myObject["x"] = 42;
-	myObject2["Citac"] = "ahojj";
-
-	String jsonString = JSON.stringify(myObject);
-	Serial.print("JSON strinf dump");
-	Serial.println(jsonString);
-
-	Serial.print("myObject.keys() = ");
-	Serial.println(myObject.keys());
-
-	myObject2["Citac"] = myObject["Parameter"]["gateway"]["value"];
-	jsonString = JSON.stringify(myObject2);
-	Serial.print("JSON2 strinf dump");
-	Serial.println(jsonString);
-
 	NacitajEEPROM_setting();
 
 	// WiFi_init(); // este si odkomentuj  //WiFi_connect_sequencer(); v 10 sek loop
