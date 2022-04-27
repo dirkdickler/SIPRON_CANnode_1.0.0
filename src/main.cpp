@@ -73,7 +73,7 @@ char TX_BUF[TX_RX_MAX_BUF_SIZE];
 bool Task_test_inProces = false;
 
 LedBlinker led(LED_pin, COMMON_NEGATIVE);
-LED_INDICATOR_t LEDkaNaDoske;
+
 
 //------------------------------------------------------------------------------------------------------------------
 
@@ -253,7 +253,7 @@ void Loop_1sek(void)
 						// Serial.print("DELTA PCF8563: ");
 						// Serial.println(delta);
 
-	log_i("LED blinker pocet opakovani %u", LEDkaNaDoske.pocetOpakovani);
+	
 	if (myTimer.Wifi_ON_timeout)
 	{
 		if (--myTimer.Wifi_ON_timeout == 0)
@@ -294,7 +294,7 @@ void Loop_1sek(void)
 		// log_i("Failed to queue message for transmission\n");
 	}
 
-	float flt = (float)ESP.getFreeHeap();
+	float flt = (float)ESP.getFreeHeap();  
 	flt /= 1000.0f;
 	char locBuf[50];
 	sprintf(locBuf, "%.3f", flt);

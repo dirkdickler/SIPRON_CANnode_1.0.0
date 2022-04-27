@@ -780,6 +780,7 @@ void OdosliStrankeIndexCoMozes(void)
 	flt /= 1000.0f;
 	locObj["HeapFree"] = flt;
 	locObj["CANadresa"] = CANadresa;
+	locObj["Firmware"] = firmware;
 	String jsonString = JSON.stringify(locObj);
 	Serial.print("Toto posielam strankam na CMD OdosliStrankeIndexCoMozes");
 	Serial.println(jsonString);

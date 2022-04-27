@@ -5,8 +5,8 @@
 //#include "SPI.h"
 #include "define.h"
 #include "constants.h"
-#include <Arduino_JSON.h>
 #include "MyBlinker.h"
+
 
 typedef int32_t i32;
 typedef int16_t i16;
@@ -90,7 +90,6 @@ extern JSONVar myObject, myObject2, JSON_DebugMsg;
 extern bool Internet_CasDostupny;
 extern char TX_BUF[];
 extern FLAGS_t flg;
-extern LED_INDICATOR_t LEDkaNaDoske;
 extern LedBlinker led;
 extern u8 CANadresa;
 

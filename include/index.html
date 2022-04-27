@@ -154,12 +154,8 @@
     var cnt = 0;
 
     setInterval(function () {
-      //console.log('Bla timer bude posial Ajax');
       //getData();
-      //document.getElementById('button0').innerHTML = cnt;
-      cnt++;
-
-      console.log('WebSocket page posila togle po 3 sekundos');
+      console.log('Timer loop... poslw WS PosliCoMozesDoIndexHTML');
       //websocket.send('VratMiCas');
       websocket.send('PosliCoMozesDoIndexHTML');
     }, 1000);
@@ -248,7 +244,12 @@
         document.getElementById("heap").innerHTML = "Heap free: " + rr.toFixed(2) + "kB";
       }
       if (obj.CANadresa) {
-        document.getElementById("CANadr").innerHTML = " &nbsp&nbsp&nbsp&nbspCANadresa: " + CANadresa;
+        document.getElementById("CANadr").innerHTML = " &nbsp&nbsp&nbsp&nbspCANadresa: " + obj.CANadresa;
+      }
+      else { console.log("CAN adresa dola nula ??"); }
+
+      if (obj.Firmware) {
+        document.getElementById("ID_Fw").innerHTML = "Firmware: " + obj.Firmware;
       }
       else { console.log("!!! kurba JSON obj nenasel nic v prichod datach"); }
 
@@ -270,7 +271,7 @@
       <p><span id="heap" style="font-size: 14px;color:white;"> Heap free : ---kb </span>
         <span id="CANadr" style="font-size: 14px;color:white;">CANadr: ---</span>
       </p>
-      </p>
+      <p><span id="ID_Fw" style="font-size: 14px;color:white;"> FW verzia</span></p>
     </div>
     <div class="content">
       <div id="myCard" class="card">
@@ -442,8 +443,8 @@
       }
     }
 
-     //toto sa vykona ked dojde sprava z ESP 
-     function onMessage(event) {
+    //toto sa vykona ked dojde sprava z ESP 
+    function onMessage(event) {
       var state;
       var obj = JSON.parse(event.data);
       console.log("Event data dosli:" + event.data);
@@ -465,7 +466,10 @@
         console.log("OjbCas vraca:" + obj.HeapFree);
       }
       if (obj.CANadresa) {
-        document.getElementById("CANadr").innerHTML = " &nbsp&nbsp&nbsp&nbspCANadresa: " + CANadresa;
+        document.getElementById("CANadr").innerHTML = " &nbsp&nbsp&nbsp&nbspCANadresa: " + obj.CANadresa;
+      }
+      if (obj.Firmware) {
+        document.getElementById("ID_Fw").innerHTML = "Firmware: " + obj.Firmware;
       }
     }
   </script>
@@ -474,7 +478,10 @@
     <div class="topnav">
       <h1>Sipron CAN DI8-DO8</h1>
       <h2>výpis DEBUG správ</h2>
-      <p><span id="heap" style="font-size: 13px;color:white;"> Heap free : ---kb </span></p>
+      <p><span id="heap" style="font-size: 14px;color:white;"> Heap free : ---kb </span>
+        <span id="CANadr" style="font-size: 14px;color:white;">CANadr: ---</span>
+      </p>
+      <p><span id="ID_Fw" style="font-size: 14px;color:white;"> FW verzia</span></p>
     </div>
     <div class="content">
       <div id="myCard" class="card">
