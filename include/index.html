@@ -77,9 +77,8 @@
     }
 
     h2 {
-      font-size: 1.5rem;
-      font-weight: bold;
-      color: #143642;
+      font-size: 14px;
+      color: white;
     }
 
     .topnav {
@@ -185,31 +184,6 @@
     }
 
 
-    //toto sa vykona ked dojde sprava z ESP 
-    function onMessage(event) {
-      var state;
-      var obj = JSON.parse(event.data);
-      console.log("Event data dosli:" + event.data);
-      //if (event.data == "1")
-      //{
-      //	state = "ON";
-      //}
-
-
-      if (obj.HeapFree) {
-        String.format("%.2f", obj.HeapFree);
-        console.log("Supper mam HEAP + sTRING:s" + String.format("%.2f", obj.HeapFree));
-        document.getElementById("heap").innerHTML = "Heap feeed: " + String.format("%.2f", obj.HeapFree);
-        console.log("OjbCas vraca:" + obj.HeapFree);
-      }
-      else { console.log("!!! kurba JSON obj nenasel nic v prichod datach"); }
-    }
-    function onLoad(event) {
-      console.log('Main Page - funkcia onLoad a nastavuje ');
-      initWebSocket();
-
-      //initButton ( );
-    }
 
 
     function getData() {
@@ -256,13 +230,47 @@
       //window.location.assign("/bla1");
     }
 
+    //toto sa vykona ked dojde sprava z ESP 
+    function onMessage(event) {
+      var state;
+      var obj = JSON.parse(event.data);
+      console.log("Event data dosli:" + event.data);
+      //if (event.data == "1")
+      //{
+      //	state = "ON";
+      //}
+
+
+      if (obj.HeapFree) {
+        var rr;
+        rr = obj.HeapFree;
+        rr.toFixed(2);
+        document.getElementById("heap").innerHTML = "Heap free: " + rr.toFixed(2) + "kB";
+      }
+      if (obj.CANadresa) {
+        document.getElementById("CANadr").innerHTML = " &nbsp&nbsp&nbsp&nbspCANadresa: " + CANadresa;
+      }
+      else { console.log("!!! kurba JSON obj nenasel nic v prichod datach"); }
+
+    }
+    function onLoad(event) {
+      console.log('Main Page - funkcia onLoad a nastavuje ');
+      initWebSocket();
+
+      //initButton ( );
+    }
+
+
   </script>
 
   <body>
     <div class="topnav">
       <h1>Sipron CAN DI8-DO8</h1>
-      <h1>hlavná stránka</h1>
-      <p><span id="heap" style="font-size: 14px;color:white;"> Heap free : ---kb </span></p>
+      <h2>hlavná stránka</h2>
+      <p><span id="heap" style="font-size: 14px;color:white;"> Heap free : ---kb </span>
+        <span id="CANadr" style="font-size: 14px;color:white;">CANadr: ---</span>
+      </p>
+      </p>
     </div>
     <div class="content">
       <div id="myCard" class="card">
@@ -316,9 +324,8 @@
     }
 
     h2 {
-      font-size: 1.5rem;
-      font-weight: bold;
-      color: #143642;
+      font-size: 14px;
+      color: white;
     }
 
     .topnav {
@@ -415,23 +422,6 @@
       //document.getElementById("ElemTime").value = VentilJson.CasOn;
     }
 
-    //toto sa vykona ked dojde sprava z ESP 
-    function onMessage(event) {
-      var state;
-      var obj = JSON.parse(event.data);
-      console.log("Event data dosli:" + event.data);
-
-      //if (event.data == "1") { state = "ON";}
-      if (obj.DebugMsg) {
-        if (LogEnable == true) {
-          document.getElementById("LogWindow").value += obj.DebugMsg;
-          logTa = document.getElementById("LogWindow")
-          logTa.scrollTop = logTa.scrollHeight;
-        }
-      }
-    }
-
-
     function myFunction(rt) {
       console.log('Button vola myFuncion a param funkcie je :' + rt);
 
@@ -451,12 +441,40 @@
         }
       }
     }
+
+     //toto sa vykona ked dojde sprava z ESP 
+     function onMessage(event) {
+      var state;
+      var obj = JSON.parse(event.data);
+      console.log("Event data dosli:" + event.data);
+
+      //if (event.data == "1") { state = "ON";}
+      if (obj.DebugMsg) {
+        if (LogEnable == true) {
+          document.getElementById("LogWindow").value += obj.DebugMsg;
+          logTa = document.getElementById("LogWindow")
+          logTa.scrollTop = logTa.scrollHeight;
+        }
+      }
+      if (obj.HeapFree) {
+        var rr;
+        rr = obj.HeapFree;
+        rr.toFixed(2);
+
+        document.getElementById("heap").innerHTML = "Heap free: " + rr.toFixed(2) + "kB";
+        console.log("OjbCas vraca:" + obj.HeapFree);
+      }
+      if (obj.CANadresa) {
+        document.getElementById("CANadr").innerHTML = " &nbsp&nbsp&nbsp&nbspCANadresa: " + CANadresa;
+      }
+    }
   </script>
 
   <body>
     <div class="topnav">
       <h1>Sipron CAN DI8-DO8</h1>
-      <h1>výpis DEBUG správ</h1>
+      <h2>výpis DEBUG správ</h2>
+      <p><span id="heap" style="font-size: 13px;color:white;"> Heap free : ---kb </span></p>
     </div>
     <div class="content">
       <div id="myCard" class="card">

@@ -779,6 +779,7 @@ void OdosliStrankeIndexCoMozes(void)
 	float flt = (float)ESP.getFreeHeap();
 	flt /= 1000.0f;
 	locObj["HeapFree"] = flt;
+	locObj["CANadresa"] = CANadresa;
 	String jsonString = JSON.stringify(locObj);
 	Serial.print("Toto posielam strankam na CMD OdosliStrankeIndexCoMozes");
 	Serial.println(jsonString);

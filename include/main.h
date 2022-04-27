@@ -92,6 +92,8 @@ extern char TX_BUF[];
 extern FLAGS_t flg;
 extern LED_INDICATOR_t LEDkaNaDoske;
 extern LedBlinker led;
+extern u8 CANadresa;
+
 
 void Loop_1ms(void);
 void Loop_10ms(void);
