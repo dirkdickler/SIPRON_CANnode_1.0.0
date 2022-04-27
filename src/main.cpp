@@ -176,8 +176,11 @@ void Loop_10ms()
 {
 	Obraz_DIN = ScanInputs();
 	CANadresa = Read_DIPAdress();
-	Obraz_DO = Output_Handler();
 
+	if(DIN[7].input == true)  { DO[7].output = true;} //TODO toto zmaz len na testy pri vyvoji
+
+	Obraz_DO = Output_Handler();
+   
 	if (digitalRead(Boot_pin) == 0)
 	{
 		if (flg.Wifi_zapnuta == false)
