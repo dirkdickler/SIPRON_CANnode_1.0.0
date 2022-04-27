@@ -782,8 +782,6 @@ void OdosliStrankeIndexCoMozes(void)
 	locObj["CANadresa"] = CANadresa;
 	locObj["Firmware"] = firmware;
 	String jsonString = JSON.stringify(locObj);
-	Serial.print("Toto posielam strankam na CMD OdosliStrankeIndexCoMozes");
-	Serial.println(jsonString);
 	ws.textAll(jsonString);
 }
 void OdosliStrankeVytapeniData(void)

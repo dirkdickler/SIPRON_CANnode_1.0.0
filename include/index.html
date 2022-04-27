@@ -237,21 +237,20 @@
       //}
 
 
-      if (obj.HeapFree) {
+      if (obj.HeapFree != undefined) {
         var rr;
         rr = obj.HeapFree;
         rr.toFixed(2);
         document.getElementById("heap").innerHTML = "Heap free: " + rr.toFixed(2) + "kB";
       }
-      if (obj.CANadresa) {
+
+      if (obj.CANadresa != undefined) {
         document.getElementById("CANadr").innerHTML = " &nbsp&nbsp&nbsp&nbspCANadresa: " + obj.CANadresa;
       }
-      else { console.log("CAN adresa dola nula ??"); }
 
-      if (obj.Firmware) {
+      if (obj.Firmware != undefined) {
         document.getElementById("ID_Fw").innerHTML = "Firmware: " + obj.Firmware;
       }
-      else { console.log("!!! kurba JSON obj nenasel nic v prichod datach"); }
 
     }
     function onLoad(event) {
@@ -450,25 +449,26 @@
       console.log("Event data dosli:" + event.data);
 
       //if (event.data == "1") { state = "ON";}
-      if (obj.DebugMsg) {
+      if (obj.DebugMsg != undefined) {
         if (LogEnable == true) {
           document.getElementById("LogWindow").value += obj.DebugMsg;
           logTa = document.getElementById("LogWindow")
           logTa.scrollTop = logTa.scrollHeight;
         }
       }
-      if (obj.HeapFree) {
+
+      if (obj.HeapFree != undefined) {
         var rr;
         rr = obj.HeapFree;
         rr.toFixed(2);
-
         document.getElementById("heap").innerHTML = "Heap free: " + rr.toFixed(2) + "kB";
-        console.log("OjbCas vraca:" + obj.HeapFree);
       }
-      if (obj.CANadresa) {
+
+      if (obj.CANadresa != undefined) {
         document.getElementById("CANadr").innerHTML = " &nbsp&nbsp&nbsp&nbspCANadresa: " + obj.CANadresa;
       }
-      if (obj.Firmware) {
+
+      if (obj.Firmware != undefined) {
         document.getElementById("ID_Fw").innerHTML = "Firmware: " + obj.Firmware;
       }
     }

@@ -74,7 +74,6 @@ bool Task_test_inProces = false;
 
 LedBlinker led(LED_pin, COMMON_NEGATIVE);
 
-
 //------------------------------------------------------------------------------------------------------------------
 
 /**********************************************************
@@ -253,7 +252,6 @@ void Loop_1sek(void)
 						// Serial.print("DELTA PCF8563: ");
 						// Serial.println(delta);
 
-	
 	if (myTimer.Wifi_ON_timeout)
 	{
 		if (--myTimer.Wifi_ON_timeout == 0)
@@ -294,7 +292,7 @@ void Loop_1sek(void)
 		// log_i("Failed to queue message for transmission\n");
 	}
 
-	float flt = (float)ESP.getFreeHeap();  
+	float flt = (float)ESP.getFreeHeap();
 	flt /= 1000.0f;
 	char locBuf[50];
 	sprintf(locBuf, "%.3f", flt);
@@ -336,9 +334,14 @@ void DebugMsgToWebSocket(String textik)
 {
 	if (LogEnebleWebPage == true)
 	{
-		// String sprava = "--:--"; //rtc.getTime("%H:%M:%S ");
-		JSON_DebugMsg["DebugMsg"] = textik; // + sprava;
-		String jsonString = JSON.stringify(JSON_DebugMsg);
+		JSONVar locObj;
+		float flt = (float)ESP.getFreeHeap();
+		flt /= 1000.0f;
+		locObj["HeapFree"] = flt;
+		locObj["CANadresa"] = CANadresa;
+		locObj["Firmware"] = firmware;
+		locObj["DebugMsg"] = textik; // + sprava;
+		String jsonString = JSON.stringify(locObj);
 		ws.textAll(jsonString);
 	}
 }
@@ -398,7 +401,6 @@ void FuncServer_On(void)
 					 esp_restart();
 				 });
 
-	
 	server.on("/debug",
 				 HTTP_GET,
 				 [](AsyncWebServerRequest *request)
