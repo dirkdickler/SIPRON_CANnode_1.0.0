@@ -443,18 +443,18 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
 
 			// notifyClients();
 		}
-		else if (strcmp((char *)data, "VratNamerane_TaH") == 0)
+		else if (strcmp((char *)data, "PosliCoMozesDoIndexHTML") == 0)
 		{
-			Serial.println("stranky poslali: VratNamerane_TaH ");
+			log_i("stranky poslali: PosliCoMozesDoIndexHTML ");
 
-			OdosliStrankeVytapeniData();
+			OdosliStrankeIndexCoMozes();
 		}
 
 		else if (strcmp((char *)data, "ZaluzieAllOpen") == 0)
 		{
 			// Send:02 43 64 00 02 00 0e 80 0e 00 00 00 b8
 			u8 loc_buf[14] = {0x2, 0x43, 0x64, 0x0, 0x2, 0x0, 0x0e, 0x80, 0x0e, 0x0, 0x0, 0x0, 0xb8};
-			Serial.println("stranky poslali: ZaluzieVsetkyOtvor");
+			log_i("stranky poslali: ZaluzieVsetkyOtvor");
 
 			// Serial1.print("test RS485..Zaluzie All open.. ");
 			for (u8 i = 0; i < 13; i++)
@@ -542,21 +542,21 @@ void WiFi_init(void)
 	Serial.print("IP address:");
 	Serial.println(WiFi.softAPIP());
 
-	// if (!WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS))
-	// {
-	// 	log_i("STA Failed to configure");
-	// }
+	if (!WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS))
+	{
+		log_i("STA Failed to configure");
+	}
 
-	// WiFi.begin(NazovSiete, Heslo);
-	// u8_t aa = 0;
-	// while (WiFi.waitForConnectResult() != WL_CONNECTED && aa < 2)
-	// {
-	// 	Serial.print(".");
-	// 	aa++;
-	// }
-	// // Print ESP Local IP Address
-	// Serial.print("Local IP adress:");
-	// Serial.println(WiFi.localIP());
+	WiFi.begin(NazovSiete, Heslo);
+	u8_t aa = 0;
+	while (WiFi.waitForConnectResult() != WL_CONNECTED && aa < 2)
+	{
+		Serial.print(".");
+		aa++;
+	}
+	// Print ESP Local IP Address
+	Serial.print("Local IP adress:");
+	Serial.println(WiFi.localIP());
 
 	ws.onEvent(onEvent);		// initWebSocket();
 	server.addHandler(&ws); // initWebSocket();
@@ -773,6 +773,17 @@ void handle_Nastaveni(AsyncWebServerRequest *request)
 	EEPROM.commit();
 }
 
+void OdosliStrankeIndexCoMozes(void)
+{
+	JSONVar locObj;
+	float flt = (float)ESP.getFreeHeap();
+	flt /= 1000.0f;
+	locObj["HeapFree"] = flt;
+	String jsonString = JSON.stringify(locObj);
+	Serial.print("Toto posielam strankam na CMD OdosliStrankeIndexCoMozes");
+	Serial.println(jsonString);
+	ws.textAll(jsonString);
+}
 void OdosliStrankeVytapeniData(void)
 {
 	// ObjTopeni["tep1"] = room[0].T_vzduch;
@@ -780,7 +791,7 @@ void OdosliStrankeVytapeniData(void)
 	JSONVar ObjTopeni;
 	String jsonString = JSON.stringify(ObjTopeni);
 	Serial.print("[ event -VratNamerane_TaH] Odosielam strankam ObjTopeni:");
-	// Serial.println(jsonString);
+	Serial.println(jsonString);
 	ws.textAll(jsonString);
 }
 

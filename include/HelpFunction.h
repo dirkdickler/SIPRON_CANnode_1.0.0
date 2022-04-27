@@ -28,7 +28,7 @@ void onEvent(AsyncWebSocket *server,
              size_t len);
 
 void WiFi_init(void);
-void WiFi_connect_sequencer(void); //vplas kazdych 10 sek loop
+void WiFi_connect_sequencer(void); // vplas kazdych 10 sek loop
 
 int getIpBlock(int index, String str);
 String ipToString(IPAddress ip);
@@ -37,7 +37,10 @@ IPAddress str2IP(String str);
 String handle_LenZobraz_IP_setting(void);
 String handle_Zadavanie_IP_setting(void);
 void handle_Nastaveni(AsyncWebServerRequest *request);
+
+void OdosliStrankeIndexCoMozes(void);
 void OdosliStrankeVytapeniData(void);
+
 void TCP_debugMsg(String sprava);
 u16 readADC_Avg(void);
 uint8_t VypocitajSumuBuffera(uint8_t *buffer, uint16_t kolko);
@@ -53,7 +56,7 @@ void float2Bytes(float val, uint8_t *bytes_array);
 void Double2Bytes(double val, uint8_t *bytes_array);
 bool OdosliZaznamDosocketu(LOGBUFF_t *logBuffStruc);
 bool UlozZaznam(LOGBUFF_t *logBuffStruc);
-String VyberZaznam( LOGBUFF_t *logBuffStruc, bool zmazZaznam);
+String VyberZaznam(LOGBUFF_t *logBuffStruc, bool zmazZaznam);
 u16 VratPocetZaznamu(LOGBUFF_t *logBuffStruc);
 void LEDblinker(void);
 

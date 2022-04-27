@@ -398,19 +398,7 @@ void FuncServer_On(void)
 					 esp_restart();
 				 });
 
-	server.on("/vytapeni",
-				 HTTP_GET,
-				 [](AsyncWebServerRequest *request)
-				 {
-					 request->send_P(200, "text/html", vytapeni);
-				 });
-
-	server.on("/zaluzie_Main",
-				 HTTP_GET,
-				 [](AsyncWebServerRequest *request)
-				 {
-					 request->send_P(200, "text/html", zaluzie_Main);
-				 });
+	
 	server.on("/debug",
 				 HTTP_GET,
 				 [](AsyncWebServerRequest *request)
