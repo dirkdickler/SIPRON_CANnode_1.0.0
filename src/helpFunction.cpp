@@ -542,21 +542,21 @@ void WiFi_init(void)
 	Serial.print("IP address:");
 	Serial.println(WiFi.softAPIP());
 
-	if (!WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS))
-	{
-		log_i("STA Failed to configure");
-	}
+	// if (!WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS))
+	// {
+	// 	log_i("STA Failed to configure");
+	// }
 
-	WiFi.begin(NazovSiete, Heslo);
-	u8_t aa = 0;
-	while (WiFi.waitForConnectResult() != WL_CONNECTED && aa < 2)
-	{
-		Serial.print(".");
-		aa++;
-	}
-	// Print ESP Local IP Address
-	Serial.print("Local IP adress:");
-	Serial.println(WiFi.localIP());
+	// WiFi.begin(NazovSiete, Heslo);
+	// u8_t aa = 0;
+	// while (WiFi.waitForConnectResult() != WL_CONNECTED && aa < 2)
+	// {
+	// 	Serial.print(".");
+	// 	aa++;
+	// }
+	// // Print ESP Local IP Address
+	// Serial.print("Local IP adress:");
+	// Serial.println(WiFi.localIP());
 
 	ws.onEvent(onEvent);		// initWebSocket();
 	server.addHandler(&ws); // initWebSocket();

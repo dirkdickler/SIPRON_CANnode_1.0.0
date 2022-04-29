@@ -217,7 +217,7 @@
         }
       };
 
-      if (rt == 1) { window.location.assign("/status"); }
+      if (rt == 1) { window.location.assign("/IOpage"); }
       else if (rt == 2) { window.location.assign("/debug"); }
       else if (rt == 3) { window.location.assign("/update"); }
       else if (rt == 4) { window.location.assign("/status"); }
@@ -292,7 +292,262 @@
   </html>
   )rawliteral";
 
+  const char IOpage[] = R"rawliteral(
+  <!DOCTYPE HTML>
+  <html>
 
+  <head>
+    <meta charset="utf-8">
+    <title>Siprom - hlavná stránka systému</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.9.0/css/all.css">
+    </link>
+  </head>
+  <style>
+    html {
+      font-family: Arial, Helvetica, sans-serif;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      color: white;
+    }
+
+    h2 {
+      font-size: 14px;
+      color: white;
+    }
+
+    .topnav {
+      overflow: hidden;
+      background-color: #143642;
+    }
+
+    body {
+      margin: 0;
+    }
+
+    .content {
+      padding: 30px;
+      max-width: 620px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background-color: #F8F7F9;
+      ;
+      box-shadow: 2px 2px 12px 1px rgba(140, 140, 140, .5);
+      padding-top: 10px;
+      padding-bottom: 20px;
+    }
+
+    .button {
+      position: relative;
+      font-size: 20px;
+      text-align: center;
+      outline: none;
+      color: #fff;
+      background-color: #0f8b8d;
+      border: none;
+      border-radius: 7px;
+      width: 70px;
+      height: 70px;
+      transition-duration: 0.4s;
+      overflow: hidden;
+      Cursor: pointer;
+      box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    }
+
+    .button:after {
+      content: "";
+      background: #f1f1f1;
+      display: block;
+      position: absolute;
+      padding-top: 300%;
+      padding-left: 350%;
+      margin-left: -20px !important;
+      margin-top: -120%;
+      opacity: 0;
+      transition: all 0.8s
+    }
+
+    .button:active:after {
+      padding: 0;
+      margin: 0;
+      opacity: 1;
+      transition: 0s
+    }
+  </style>
+
+
+
+  <script>
+    var gateway = `ws://${window.location.hostname}/ws`;
+    var websocket;
+    var PocetZon = 7;
+    var x = 2;
+    var a = 4.3;
+    var i, hum = 66;
+    var cnt = 0;
+
+    setInterval(function () {
+      //getData();
+      console.log('Timer loop... poslw WS PosliCoMozesDoIndexHTML');
+      //websocket.send('VratMiCas');
+      websocket.send('PosliCoMozesDoIndexHTML');
+    }, 1000);
+
+
+
+    window.addEventListener('load', onLoad);
+    function initWebSocket() {
+      console.log('Trying to open a WebSocket connection...');
+      websocket = new WebSocket(gateway);
+      websocket.onopen = onOpen;
+      websocket.onclose = onClose;
+      websocket.onmessage = onMessage;   // <-- add this line
+    }
+    function onOpen(event) {
+      console.log('Connection opened');
+      websocket.send('VratMiCas');   //vypytam si cas
+    }
+    function onClose(event) {
+      console.log('Connection closed');
+      setTimeout(initWebSocket, 2000);
+    }
+
+
+
+
+
+
+
+    function sleep(milliseconds) {
+      const date = Date.now();
+      let currentDate = null;
+      do {
+        currentDate = Date.now();
+      } while (currentDate - date < milliseconds);
+    }
+
+
+    function myFunction(rt) {
+      console.log('Button vola myFuncion a param funkcie je :' + rt);
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+          //document.getElementById("state").innerHTML = this.responseText;
+          window.location.assign("/bla1");
+        }
+      };
+
+      if (rt == 1) { window.location.assign("/status"); }
+      else if (rt == 2) { window.location.assign("/debug"); }
+      else if (rt == 3) { window.location.assign("/update"); }
+      else if (rt == 4) { window.location.assign("/status"); }
+      //xhttp.send();
+      //sleep(500);
+      //window.location.assign("/bla1");
+    }
+
+    //toto sa vykona ked dojde sprava z ESP 
+    function onMessage(event) {
+      var state;
+      var obj = JSON.parse(event.data);
+      console.log("Event data dosli:" + event.data);
+      //if (event.data == "1")
+      //{
+      //	state = "ON";
+      //}
+
+
+      if (obj.HeapFree != undefined) {
+        var rr;
+        rr = obj.HeapFree;
+        rr.toFixed(2);
+        document.getElementById("heap").innerHTML = "Heap free: " + rr.toFixed(2) + "kB";
+      }
+
+      if (obj.CANadresa != undefined) {
+        document.getElementById("CANadr").innerHTML = " &nbsp&nbsp&nbsp&nbspCANadresa: " + obj.CANadresa;
+      }
+
+      if (obj.Firmware != undefined) {
+        document.getElementById("ID_Fw").innerHTML = "Firmware: " + obj.Firmware;
+      }
+
+      if (obj.vstupy != undefined) {
+        document.getElementById("ID_Fw").innerHTML = "Firmware: " + obj.Firmware;
+      }
+      if (obj.vystupy != undefined) {
+        document.getElementById("ID_Fw").innerHTML = "Firmware: " + obj.Firmware;
+      }
+    }
+    function onLoad(event) {
+      console.log('Main Page - funkcia onLoad a nastavuje ');
+      initWebSocket();
+
+      //initButton ( );
+    }
+
+
+  </script>
+
+  <body>
+    <div class="topnav">
+      <h1>Sipron CAN DI8-DO8</h1>
+      <h1>IO stránka</h1>
+      <p><span id="heap" style="font-size: 14px;color:white;"> Heap free : ---kb </span>
+        <span id="CANadr" style="font-size: 14px;color:white;">CANadr: ---</span>
+      </p>
+    </div>
+    <div class="content">
+      <!--<div id="myCard" class="card">-->
+        <!-- <p class="state">state: <span id="state">%STATE%</span></p> -->
+        <!--<p><button onclick="myFunction(100)" class="button"> </p><p><i class="fa fa-clock-o"></i><span id="ButtonSett_time" >--:--</span></button></p>  -->
+        <p><button id="Elm_IN1" class="button">In1:-</button>
+          &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<button onclick="myFunction(1)" id="Elm_Out1"
+            class="button">DO1:-</button>
+        </p>
+        <p><button id="Elm_IN2" class="button">In2:-</button>
+          &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<button onclick="myFunction(2)" id="Elm_Out2"
+            class="button">DO2:-</button>
+        </p>
+        <p><button id="Elm_IN3" class="button">In3:-</button>
+          &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<button onclick="myFunction(3)" id="Elm_Out3"
+            class="button">DO3:-</button>
+        </p>
+        <p><button id="Elm_IN4" class="button">In4:-</button>
+          &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<button onclick="myFunction(4)" id="Elm_Out4"
+            class="button">DO4:-</button>
+        </p>
+        <p><button id="Elm_IN5" class="button">In5:-</button>
+          &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<button onclick="myFunction(5)" id="Elm_Out5"
+            class="button">DO5:-</button>
+        </p>
+        <p><button id="Elm_IN6" class="button">In6:-</button>
+          &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<button onclick="myFunction(6)" id="Elm_Out6"
+            class="button">DO6:-</button>
+        </p>
+        <p><button id="Elm_IN7" class="button">In7:-</button>
+          &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<button onclick="myFunction(7)" id="Elm_Out7"
+            class="button">DO7:-</button>
+        </p>
+        <p><button id="Elm_IN8" class="button">In8:-</button>
+          &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<button onclick="myFunction(8)" id="Elm_Out8"
+            class="button">DO8:-</button>
+        </p>
+
+        <!-- <p></><input type="number" id="Hood" name="hodnota" style="font-size:35px; width:85px;" value=23 min="-10" max="30000" step="0.1"></p>  -->
+      <!--</div>-->
+    </div>
+  </body>
+
+  </html>
+  )rawliteral";
 
 
 
