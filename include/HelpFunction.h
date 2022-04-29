@@ -39,6 +39,7 @@ String handle_Zadavanie_IP_setting(void);
 void handle_Nastaveni(AsyncWebServerRequest *request);
 
 void OdosliStrankeIndexCoMozes(void);
+void OdosliStrankeIOpageCoMozes(void);
 void OdosliStrankeVytapeniData(void);
 
 void TCP_debugMsg(String sprava);

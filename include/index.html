@@ -5,6 +5,8 @@
 
 /* #include <Arduino.h>*/
 
+
+
   const char zadavaci_html[] = R"rawliteral(
   <!DOCTYPE HTML>
   <html>
@@ -277,7 +279,7 @@
         <!-- <p class="state">state: <span id="state">%STATE%</span></p> -->
         <!--<p><button onclick="myFunction(100)" class="button"> </p><p><i class="fa fa-clock-o"></i><span id="ButtonSett_time" >--:--</span></button></p>  -->
         <p><button onclick="myFunction(1)" id="button1" class="button"> </p>
-        <p> Status zariadenia</button></p>
+        <p> Vstupy-výstupy</button></p>
         <p><button onclick="myFunction(2)" id="butto2" class="button"> </p>
         <p> Výpis Debug správ</button></p>
         <p><button onclick="myFunction(3)" id="button3" class="button"> </p>
@@ -291,6 +293,10 @@
 
   </html>
   )rawliteral";
+
+
+
+
 
   const char IOpage[] = R"rawliteral(
   <!DOCTYPE HTML>
@@ -388,16 +394,14 @@
     var gateway = `ws://${window.location.hostname}/ws`;
     var websocket;
     var PocetZon = 7;
-    var x = 2;
-    var a = 4.3;
-    var i, hum = 66;
-    var cnt = 0;
+    var Obraz_vstupy;
+    var Obraz_vystupy;
 
     setInterval(function () {
       //getData();
-      console.log('Timer loop... poslw WS PosliCoMozesDoIndexHTML');
+      console.log('Timer loop... poslw WS PosliCoMozesDoIOpage');
       //websocket.send('VratMiCas');
-      websocket.send('PosliCoMozesDoIndexHTML');
+      websocket.send('PosliCoMozesDoIOpage');
     }, 1000);
 
 
@@ -418,12 +422,6 @@
       console.log('Connection closed');
       setTimeout(initWebSocket, 2000);
     }
-
-
-
-
-
-
 
     function sleep(milliseconds) {
       const date = Date.now();
@@ -479,11 +477,37 @@
         document.getElementById("ID_Fw").innerHTML = "Firmware: " + obj.Firmware;
       }
 
-      if (obj.vstupy != undefined) {
-        document.getElementById("ID_Fw").innerHTML = "Firmware: " + obj.Firmware;
+      if (obj.Vstupy != undefined) {
+        //console.log('Stranke dosli vystupy":' + obj.Vstupy);
+        Obraz_vstupy = obj.Vstupy;
+        if ((Obraz_vstupy & (1<< 0)) ) {  document.getElementById("Elm_IN1").innerHTML = 1; }
+        else { document.getElementById("Elm_IN1").innerHTML = 0; }
+
+        if ((Obraz_vstupy & (1<< 1)) ) {  document.getElementById("Elm_IN2").innerHTML = 1; }
+        else { document.getElementById("Elm_IN2").innerHTML = 0; }
+
+        if ((Obraz_vstupy & (1<< 2)) ) {  document.getElementById("Elm_IN3").innerHTML = 1; }
+        else { document.getElementById("Elm_IN3").innerHTML = 0; }
+
+        if ((Obraz_vstupy & (1<< 3)) ) {  document.getElementById("Elm_IN4").innerHTML = 1; }
+        else { document.getElementById("Elm_IN4").innerHTML = 0; }
+
+        if ((Obraz_vstupy & (1<< 4)) ) {  document.getElementById("Elm_IN5").innerHTML = 1; }
+        else { document.getElementById("Elm_IN5").innerHTML = 0; }
+
+        if ((Obraz_vstupy & (1<< 5)) ) {  document.getElementById("Elm_IN6").innerHTML = 1; }
+        else { document.getElementById("Elm_IN6").innerHTML = 0; }
+
+        if ((Obraz_vstupy & (1<< 6)) ) {  document.getElementById("Elm_IN7").innerHTML = 1; }
+        else { document.getElementById("Elm_IN7").innerHTML = 0; }
+
+        if ((Obraz_vstupy & (1<< 7)) ) {  document.getElementById("Elm_IN8").innerHTML = 1; }
+        else { document.getElementById("Elm_IN8").innerHTML = 0; }
+
       }
-      if (obj.vystupy != undefined) {
-        document.getElementById("ID_Fw").innerHTML = "Firmware: " + obj.Firmware;
+      if (obj.Vystupy != undefined) {
+        //console.log('Stranke dosli vystupy":' + obj.Vystupy);
+        document.getElementById("Elm_Out1").innerHTML = obj.Vystupy;
       }
     }
     function onLoad(event) {
@@ -503,45 +527,46 @@
       <p><span id="heap" style="font-size: 14px;color:white;"> Heap free : ---kb </span>
         <span id="CANadr" style="font-size: 14px;color:white;">CANadr: ---</span>
       </p>
+      <p><span id="ID_Fw" style="font-size: 14px;color:white;"> FW verzia</span></p>
     </div>
     <div class="content">
       <!--<div id="myCard" class="card">-->
-        <!-- <p class="state">state: <span id="state">%STATE%</span></p> -->
-        <!--<p><button onclick="myFunction(100)" class="button"> </p><p><i class="fa fa-clock-o"></i><span id="ButtonSett_time" >--:--</span></button></p>  -->
-        <p><button id="Elm_IN1" class="button">In1:-</button>
-          &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<button onclick="myFunction(1)" id="Elm_Out1"
-            class="button">DO1:-</button>
-        </p>
-        <p><button id="Elm_IN2" class="button">In2:-</button>
-          &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<button onclick="myFunction(2)" id="Elm_Out2"
-            class="button">DO2:-</button>
-        </p>
-        <p><button id="Elm_IN3" class="button">In3:-</button>
-          &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<button onclick="myFunction(3)" id="Elm_Out3"
-            class="button">DO3:-</button>
-        </p>
-        <p><button id="Elm_IN4" class="button">In4:-</button>
-          &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<button onclick="myFunction(4)" id="Elm_Out4"
-            class="button">DO4:-</button>
-        </p>
-        <p><button id="Elm_IN5" class="button">In5:-</button>
-          &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<button onclick="myFunction(5)" id="Elm_Out5"
-            class="button">DO5:-</button>
-        </p>
-        <p><button id="Elm_IN6" class="button">In6:-</button>
-          &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<button onclick="myFunction(6)" id="Elm_Out6"
-            class="button">DO6:-</button>
-        </p>
-        <p><button id="Elm_IN7" class="button">In7:-</button>
-          &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<button onclick="myFunction(7)" id="Elm_Out7"
-            class="button">DO7:-</button>
-        </p>
-        <p><button id="Elm_IN8" class="button">In8:-</button>
-          &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<button onclick="myFunction(8)" id="Elm_Out8"
-            class="button">DO8:-</button>
-        </p>
+      <!-- <p class="state">state: <span id="state">%STATE%</span></p> -->
+      <!--<p><button onclick="myFunction(100)" class="button"> </p><p><i class="fa fa-clock-o"></i><span id="ButtonSett_time" >--:--</span></button></p>  -->
+      <p><button id="Elm_IN1" class="button">In1:-</button>
+        &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<button onclick="myFunction(1)" id="Elm_Out1"
+          class="button">DO1:-</button>
+      </p>
+      <p><button id="Elm_IN2" class="button">In2:-</button>
+        &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<button onclick="myFunction(2)" id="Elm_Out2"
+          class="button">DO2:-</button>
+      </p>
+      <p><button id="Elm_IN3" class="button">In3:-</button>
+        &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<button onclick="myFunction(3)" id="Elm_Out3"
+          class="button">DO3:-</button>
+      </p>
+      <p><button id="Elm_IN4" class="button">In4:-</button>
+        &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<button onclick="myFunction(4)" id="Elm_Out4"
+          class="button">DO4:-</button>
+      </p>
+      <p><button id="Elm_IN5" class="button">In5:-</button>
+        &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<button onclick="myFunction(5)" id="Elm_Out5"
+          class="button">DO5:-</button>
+      </p>
+      <p><button id="Elm_IN6" class="button">In6:-</button>
+        &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<button onclick="myFunction(6)" id="Elm_Out6"
+          class="button">DO6:-</button>
+      </p>
+      <p><button id="Elm_IN7" class="button">In7:-</button>
+        &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<button onclick="myFunction(7)" id="Elm_Out7"
+          class="button">DO7:-</button>
+      </p>
+      <p><button id="Elm_IN8" class="button">In8:-</button>
+        &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<button onclick="myFunction(8)" id="Elm_Out8"
+          class="button">DO8:-</button>
+      </p>
 
-        <!-- <p></><input type="number" id="Hood" name="hodnota" style="font-size:35px; width:85px;" value=23 min="-10" max="30000" step="0.1"></p>  -->
+      <!-- <p></><input type="number" id="Hood" name="hodnota" style="font-size:35px; width:85px;" value=23 min="-10" max="30000" step="0.1"></p>  -->
       <!--</div>-->
     </div>
   </body>

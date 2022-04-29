@@ -363,11 +363,11 @@ void System_init(void)
 	flg.posti_Wifi = false;
 
 	led.blink(200 /* time on */,
-				 200 /* time off */,
-				 1 /* cycles */,
-				 1000 /* pause between secuences */,
-				 0xffff /* secuences */,
-				 NULL /* function to call when finished */
+			  200 /* time off */,
+			  1 /* cycles */,
+			  1000 /* pause between secuences */,
+			  0xffff /* secuences */,
+			  NULL /* function to call when finished */
 	);
 
 	log_i("[Func:System_init]  end..");
@@ -446,63 +446,23 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
 		else if (strcmp((char *)data, "PosliCoMozesDoIndexHTML") == 0)
 		{
 			log_i("stranky poslali: PosliCoMozesDoIndexHTML ");
-
 			OdosliStrankeIndexCoMozes();
 		}
 
-		else if (strcmp((char *)data, "ZaluzieAllOpen") == 0)
+		else if (strcmp((char *)data, "PosliCoMozesDoIOpage") == 0)
 		{
-			// Send:02 43 64 00 02 00 0e 80 0e 00 00 00 b8
-			u8 loc_buf[14] = {0x2, 0x43, 0x64, 0x0, 0x2, 0x0, 0x0e, 0x80, 0x0e, 0x0, 0x0, 0x0, 0xb8};
-			log_i("stranky poslali: ZaluzieVsetkyOtvor");
-
-			// Serial1.print("test RS485..Zaluzie All open.. ");
-			for (u8 i = 0; i < 13; i++)
-			{
-				Serial1.write(loc_buf[i]);
-			}
-			String rr = "[HndlWebSocket] To RS485 posielam OTVOR zaluzie\r\n";
-			DebugMsgToWebSocket(rr);
-		}
-		else if (strcmp((char *)data, "ZaluzieAllStop") == 0)
-		{
-			// Send:02 43 64 00 02 00 0c 80 0c 00 00 00 bc
-			u8 loc_buf[14] = {0x2, 0x43, 0x64, 0x0, 0x2, 0x0, 0x0c, 0x80, 0x0c, 0x0, 0x0, 0x0, 0xbc};
-			Serial.println("stranky poslali: ZaluzieAllStop ");
-
-			// Serial1.println("test RS485..Zaluzie All Stop.. ");
-			for (u8 i = 0; i < 13; i++)
-			{
-				Serial1.write(loc_buf[i]);
-			}
-
-			String rr = "[HndlWebSocket] To RS485 posielam STOP zaluzie\r\n";
-			DebugMsgToWebSocket(rr);
-		}
-
-		else if (strcmp((char *)data, "ZaluzieAllClose") == 0)
-		{
-			// Send:02 43 64 00 02 00 0d 80 0d 00 00 00 ba
-			u8 loc_buf[14] = {0x02, 0x43, 0x64, 0x0, 0x2, 0x0, 0x0d, 0x80, 0x0d, 0x0, 0x0, 0x0, 0xba};
-			Serial.println("stranky poslali: ZaluzieVsetky zatvor");
-
-			// Serial1.println("test RS485..Zaluzie All close.. ");
-			for (u8 i = 0; i < 13; i++)
-			{
-				Serial1.write(loc_buf[i]);
-			}
-			String rr = "[HndlWebSocket] To RS485 posielam ZATVOR zaluzie\r\n";
-			DebugMsgToWebSocket(rr);
+			log_i("stranky poslali: PosliCoMozesDoIOpage");
+			OdosliStrankeIOpageCoMozes();
 		}
 	}
 }
 
 void onEvent(AsyncWebSocket *server,
-				 AsyncWebSocketClient *client,
-				 AwsEventType type,
-				 void *arg,
-				 uint8_t *data,
-				 size_t len)
+			 AsyncWebSocketClient *client,
+			 AwsEventType type,
+			 void *arg,
+			 uint8_t *data,
+			 size_t len)
 {
 	switch (type)
 	{
@@ -525,7 +485,7 @@ void WiFi_init(void)
 {
 	String ree = "SipronCAN ";
 	char NazovAP_bodu[50] = {
-		 0,
+		0,
 	};
 	const char *adrPTR = NazovAP_bodu;
 
@@ -542,23 +502,23 @@ void WiFi_init(void)
 	Serial.print("IP address:");
 	Serial.println(WiFi.softAPIP());
 
-	// if (!WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS))
-	// {
-	// 	log_i("STA Failed to configure");
-	// }
+	if (!WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS))
+	{
+		log_i("STA Failed to configure");
+	}
 
-	// WiFi.begin(NazovSiete, Heslo);
-	// u8_t aa = 0;
-	// while (WiFi.waitForConnectResult() != WL_CONNECTED && aa < 2)
-	// {
-	// 	Serial.print(".");
-	// 	aa++;
-	// }
-	// // Print ESP Local IP Address
-	// Serial.print("Local IP adress:");
-	// Serial.println(WiFi.localIP());
+	WiFi.begin(NazovSiete, Heslo);
+	u8_t aa = 0;
+	while (WiFi.waitForConnectResult() != WL_CONNECTED && aa < 2)
+	{
+		Serial.print(".");
+		aa++;
+	}
+	// Print ESP Local IP Address
+	Serial.print("Local IP adress:");
+	Serial.println(WiFi.localIP());
 
-	ws.onEvent(onEvent);		// initWebSocket();
+	ws.onEvent(onEvent);	// initWebSocket();
 	server.addHandler(&ws); // initWebSocket();
 
 	FuncServer_On();
@@ -784,6 +744,21 @@ void OdosliStrankeIndexCoMozes(void)
 	String jsonString = JSON.stringify(locObj);
 	ws.textAll(jsonString);
 }
+
+void OdosliStrankeIOpageCoMozes(void)
+{
+	JSONVar locObj;
+	float flt = (float)ESP.getFreeHeap();
+	flt /= 1000.0f;
+	locObj["HeapFree"] = flt;
+	locObj["CANadresa"] = CANadresa;
+	locObj["Firmware"] = firmware;
+	locObj["Vstupy"] = 7;
+	locObj["Vystupy"] = 9;
+	String jsonString = JSON.stringify(locObj);
+	ws.textAll(jsonString);
+}
+
 void OdosliStrankeVytapeniData(void)
 {
 	// ObjTopeni["tep1"] = room[0].T_vzduch;
@@ -899,11 +874,11 @@ bool KontrolujBufferZdaObsaujeJSONdata(char JSONbuffer[])
 				mt = atoi(argv[1]);
 				yr = atoi(argv[0]);
 				if ((sc < 60 && sc > -1) &&
-					 (mn > -1 && mn < 60) &&
-					 (hr > -1 && hr < 24) &&
-					 (dy > 0 && dy < 32) &&
-					 (mt > 0 && mt < 13) &&
-					 (yr > 2000 && yr < 2500))
+					(mn > -1 && mn < 60) &&
+					(hr > -1 && hr < 24) &&
+					(dy > 0 && dy < 32) &&
+					(mt > 0 && mt < 13) &&
+					(yr > 2000 && yr < 2500))
 				{
 					// TODO tu mas uz rozparsrovany RTC, tak si ho uloz kam potrebujes do ESP casu, or do I2C RTC modulu
 					//	RTC_Date Pccc;
