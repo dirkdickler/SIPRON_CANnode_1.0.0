@@ -741,6 +741,7 @@ void OdosliStrankeIndexCoMozes(void)
 	locObj["HeapFree"] = flt;
 	locObj["CANadresa"] = CANadresa;
 	locObj["Firmware"] = firmware;
+	locObj["MACadr"] = WiFi.macAddress();
 	String jsonString = JSON.stringify(locObj);
 	ws.textAll(jsonString);
 }
@@ -753,6 +754,7 @@ void OdosliStrankeIOpageCoMozes(void)
 	locObj["HeapFree"] = flt;
 	locObj["CANadresa"] = CANadresa;
 	locObj["Firmware"] = firmware;
+	locObj["MACadr"] = WiFi.macAddress();
 	locObj["Vstupy"] = 7;
 	locObj["Vystupy"] = 9;
 	String jsonString = JSON.stringify(locObj);

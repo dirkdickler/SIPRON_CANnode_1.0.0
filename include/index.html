@@ -253,7 +253,9 @@
       if (obj.Firmware != undefined) {
         document.getElementById("ID_Fw").innerHTML = "Firmware: " + obj.Firmware;
       }
-
+      if (obj.MACadr != undefined) {
+        document.getElementById("ID_MAC").innerHTML = "MAC adresa: " + obj.MACadr;
+      }
     }
     function onLoad(event) {
       console.log('Main Page - funkcia onLoad a nastavuje ');
@@ -273,6 +275,7 @@
         <span id="CANadr" style="font-size: 14px;color:white;">CANadr: ---</span>
       </p>
       <p><span id="ID_Fw" style="font-size: 14px;color:white;"> FW verzia</span></p>
+      <p><span id="ID_MAC" style="font-size: 14px;color:white;">MAC:---</span></p>
     </div>
     <div class="content">
       <div id="myCard" class="card">
@@ -476,32 +479,35 @@
       if (obj.Firmware != undefined) {
         document.getElementById("ID_Fw").innerHTML = "Firmware: " + obj.Firmware;
       }
+      if (obj.MACadr != undefined) {
+        document.getElementById("ID_MAC").innerHTML = "MAC adresa: " + obj.MACadr;
+      }
 
       if (obj.Vstupy != undefined) {
         //console.log('Stranke dosli vystupy":' + obj.Vstupy);
-        Obraz_vstupy = obj.Vstupy;
-        if ((Obraz_vstupy & (1<< 0)) ) {  document.getElementById("Elm_IN1").innerHTML = 1; }
+        Obraz_vstupy = obj.CANadresa //obj.Vstupy;
+        if ((Obraz_vstupy & (1 << 0))) { document.getElementById("Elm_IN1").innerHTML = 1; }
         else { document.getElementById("Elm_IN1").innerHTML = 0; }
 
-        if ((Obraz_vstupy & (1<< 1)) ) {  document.getElementById("Elm_IN2").innerHTML = 1; }
+        if ((Obraz_vstupy & (1 << 1))) { document.getElementById("Elm_IN2").innerHTML = 1; }
         else { document.getElementById("Elm_IN2").innerHTML = 0; }
 
-        if ((Obraz_vstupy & (1<< 2)) ) {  document.getElementById("Elm_IN3").innerHTML = 1; }
+        if ((Obraz_vstupy & (1 << 2))) { document.getElementById("Elm_IN3").innerHTML = 1; }
         else { document.getElementById("Elm_IN3").innerHTML = 0; }
 
-        if ((Obraz_vstupy & (1<< 3)) ) {  document.getElementById("Elm_IN4").innerHTML = 1; }
+        if ((Obraz_vstupy & (1 << 3))) { document.getElementById("Elm_IN4").innerHTML = 1; }
         else { document.getElementById("Elm_IN4").innerHTML = 0; }
 
-        if ((Obraz_vstupy & (1<< 4)) ) {  document.getElementById("Elm_IN5").innerHTML = 1; }
+        if ((Obraz_vstupy & (1 << 4))) { document.getElementById("Elm_IN5").innerHTML = 1; }
         else { document.getElementById("Elm_IN5").innerHTML = 0; }
 
-        if ((Obraz_vstupy & (1<< 5)) ) {  document.getElementById("Elm_IN6").innerHTML = 1; }
+        if ((Obraz_vstupy & (1 << 5))) { document.getElementById("Elm_IN6").innerHTML = 1; }
         else { document.getElementById("Elm_IN6").innerHTML = 0; }
 
-        if ((Obraz_vstupy & (1<< 6)) ) {  document.getElementById("Elm_IN7").innerHTML = 1; }
+        if ((Obraz_vstupy & (1 << 6))) { document.getElementById("Elm_IN7").innerHTML = 1; }
         else { document.getElementById("Elm_IN7").innerHTML = 0; }
 
-        if ((Obraz_vstupy & (1<< 7)) ) {  document.getElementById("Elm_IN8").innerHTML = 1; }
+        if ((Obraz_vstupy & (1 << 7))) { document.getElementById("Elm_IN8").innerHTML = 1; }
         else { document.getElementById("Elm_IN8").innerHTML = 0; }
 
       }
@@ -527,44 +533,47 @@
       <p><span id="heap" style="font-size: 14px;color:white;"> Heap free : ---kb </span>
         <span id="CANadr" style="font-size: 14px;color:white;">CANadr: ---</span>
       </p>
-      <p><span id="ID_Fw" style="font-size: 14px;color:white;"> FW verzia</span></p>
+      <p><span id="ID_Fw" style="font-size: 14px;color:white;">FW verzia</span></p>
+      <p><span id="ID_MAC" style="font-size: 14px;color:white;">MAC:---</span></p>
     </div>
     <div class="content">
       <!--<div id="myCard" class="card">-->
       <!-- <p class="state">state: <span id="state">%STATE%</span></p> -->
       <!--<p><button onclick="myFunction(100)" class="button"> </p><p><i class="fa fa-clock-o"></i><span id="ButtonSett_time" >--:--</span></button></p>  -->
-      <p><button id="Elm_IN1" class="button">In1:-</button>
-        &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<button onclick="myFunction(1)" id="Elm_Out1"
-          class="button">DO1:-</button>
+      <p> <span style="font-size: 24px;">&nbsp&nbsp&nbsp&nbspVstupy&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp Výstupy</p>
+      <p>1: <button id="Elm_IN1" class="button">--</button>
+        &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+        1:<button onclick="myFunction(1)" id="Elm_Out1" class="button">--</button>
       </p>
-      <p><button id="Elm_IN2" class="button">In2:-</button>
-        &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<button onclick="myFunction(2)" id="Elm_Out2"
-          class="button">DO2:-</button>
+      <p>2: <button id="Elm_IN2" class="button">--</button>
+        &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+        2: <button onclick="myFunction(2)" id="Elm_Out2" class="button">--</button>
       </p>
-      <p><button id="Elm_IN3" class="button">In3:-</button>
-        &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<button onclick="myFunction(3)" id="Elm_Out3"
-          class="button">DO3:-</button>
+      <p>3: <button id="Elm_IN3" class="button">--</button>
+        &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+        3:<button onclick="myFunction(3)" id="Elm_Out3" class="button">--</button>
       </p>
-      <p><button id="Elm_IN4" class="button">In4:-</button>
-        &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<button onclick="myFunction(4)" id="Elm_Out4"
-          class="button">DO4:-</button>
+      <p>4:<button id="Elm_IN4" class="button">--</button>
+        &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+        4:<button onclick="myFunction(4)" id="Elm_Out4" class="button">--</button>
       </p>
-      <p><button id="Elm_IN5" class="button">In5:-</button>
-        &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<button onclick="myFunction(5)" id="Elm_Out5"
-          class="button">DO5:-</button>
+      <p>5: <button id="Elm_IN5" class="button">--</button>
+        &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+        5:<button onclick="myFunction(5)" id="Elm_Out5" class="button">--</button>
       </p>
-      <p><button id="Elm_IN6" class="button">In6:-</button>
-        &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<button onclick="myFunction(6)" id="Elm_Out6"
-          class="button">DO6:-</button>
+      <p>6:<button id="Elm_IN6" class="button">--</button>
+        &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+        6:<button onclick="myFunction(6)" id="Elm_Out6" class="button">--</button>
       </p>
-      <p><button id="Elm_IN7" class="button">In7:-</button>
-        &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<button onclick="myFunction(7)" id="Elm_Out7"
-          class="button">DO7:-</button>
+      <p>7:<button id="Elm_IN7" class="button">--</button>
+        &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+        7:<button onclick="myFunction(7)" id="Elm_Out7" class="button">--</button>
       </p>
-      <p><button id="Elm_IN8" class="button">In8:-</button>
-        &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<button onclick="myFunction(8)" id="Elm_Out8"
-          class="button">DO8:-</button>
+      <p>8:<button id="Elm_IN8" class="button">--</button>
+        &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+        8: <button onclick="myFunction(8)" id="Elm_Out8" class="button">--</button>
       </p>
+
 
       <!-- <p></><input type="number" id="Hood" name="hodnota" style="font-size:35px; width:85px;" value=23 min="-10" max="30000" step="0.1"></p>  -->
       <!--</div>-->
