@@ -484,7 +484,7 @@ void onEvent(AsyncWebSocket *server,
 void WiFi_init(void)
 {
 	String ree = "SipronCAN ";
-	char NazovAP_bodu[50] = {
+	char NazovAP_bodu[150] = {
 		0,
 	};
 	const char *adrPTR = NazovAP_bodu;
@@ -495,29 +495,29 @@ void WiFi_init(void)
 
 	//Serial.print("ESP Board MAC Address:  ");
 	//Serial.println(WiFi.macAddress());
-	WiFi.mode(WIFI_MODE_APSTA);
-	//WiFi.mode(WIFI_MODE_AP);
+	//WiFi.mode(WIFI_MODE_APSTA);
+	WiFi.mode(WIFI_MODE_AP);
 	log_i("Creating Accesspoint");
 	WiFi.softAP((const char *)adrPTR, "sipronAPnode", 7, 0, 3);
 	Serial.print("IP address:");
 	Serial.println(WiFi.softAPIP());
 
-	if (!WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS))
-	{
-		log_i("STA Failed to configure");
-	}
+	// if (!WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS))
+	// {
+	// 	log_i("STA Failed to configure");
+	// }
 
-	WiFi.begin(NazovSiete, Heslo);
-	u8_t aa = 0;
-	esp_task_wdt_reset();
-	while (WiFi.waitForConnectResult(5000) != WL_CONNECTED && aa < 2)
-	{
-		Serial.print(".");
-		aa++;
-	}
-	// Print ESP Local IP Address
-	Serial.print("Local IP adress:");
-	Serial.println(WiFi.localIP());
+	// WiFi.begin(NazovSiete, Heslo);
+	// u8_t aa = 0;
+	// esp_task_wdt_reset();
+	// while (WiFi.waitForConnectResult(5000) != WL_CONNECTED && aa < 2)
+	// {
+	// 	Serial.print(".");
+	// 	aa++;
+	// }
+	// // Print ESP Local IP Address
+	// Serial.print("Local IP adress:");
+	// Serial.println(WiFi.localIP());
 
 	ws.onEvent(onEvent);	// initWebSocket();
 	server.addHandler(&ws); // initWebSocket();
