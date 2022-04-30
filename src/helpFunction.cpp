@@ -755,21 +755,12 @@ void OdosliStrankeIOpageCoMozes(void)
 	locObj["CANadresa"] = CANadresa;
 	locObj["Firmware"] = firmware;
 	locObj["MACadr"] = WiFi.macAddress();
-	locObj["Vstupy"] = 7;
-	locObj["Vystupy"] = 9;
+	locObj["Vstupy"] = Obraz_DIN;
+	locObj["Vystupy"] = Obraz_DO;
 	String jsonString = JSON.stringify(locObj);
 	ws.textAll(jsonString);
-}
-
-void OdosliStrankeVytapeniData(void)
-{
-	// ObjTopeni["tep1"] = room[0].T_vzduch;
-	// ObjTopeni["hum1"] = room[0].RH_vlhkkost;
-	JSONVar ObjTopeni;
-	String jsonString = JSON.stringify(ObjTopeni);
-	Serial.print("[ event -VratNamerane_TaH] Odosielam strankam ObjTopeni:");
-	Serial.println(jsonString);
-	ws.textAll(jsonString);
+	//Serial.println("Tento JSON posielam IO page :");
+	//Serial.println(jsonString);
 }
 
 uint8_t VypocitajSumuBuffera(uint8_t *buffer, uint16_t kolko)

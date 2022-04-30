@@ -47,7 +47,7 @@
 #define filterTime_DI 3  //10ms loop
 #define pocetADR 7
 #define WDT_TIMEOUT 5
-#define firmware "ver20210614_1beta"
+#define firmware "ver202206010_1beta"
 
 
 //EEPROM adrese

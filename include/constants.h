@@ -105,9 +105,10 @@ typedef struct
 	uint16_t timeout_OFF;
 }VYSTUP_t;
 typedef struct //
-{
+{  
 	bool posti_Wifi;
 	bool Wifi_zapnuta;
+	bool posielajDataIOpageNaZmenuIO;
 } FLAGS_t;
 
 typedef struct //

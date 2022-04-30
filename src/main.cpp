@@ -177,12 +177,12 @@ void Loop_10ms()
 	Obraz_DIN = ScanInputs();
 	CANadresa = Read_DIPAdress();
 
+	Obraz_DO = Output_Handler();
+
 	if (DIN[7].input == true)
 	{
 		DO[7].output = true;
 	} // TODO toto zmaz len na testy pri vyvoji
-
-	Obraz_DO = Output_Handler();
 
 	if (digitalRead(Boot_pin) == 0)
 	{
@@ -191,7 +191,7 @@ void Loop_10ms()
 			log_i("!!!!  Zapinam WIFI !!! ");
 			WiFi_init();
 			flg.Wifi_zapnuta = true;
-			myTimer.Wifi_ON_timeout = 60 * 10; // sekund
+			myTimer.Wifi_ON_timeout = 6 * 10; // sekund
 
 			led.blink(200 /* time on */,
 					  200 /* time off */,
@@ -245,6 +245,7 @@ void Loop_1sek(void)
 		{
 			log_i("Ubehol cas zapnutia Wifi - vypinam Wifinu");
 			WiFi.enableAP(false);
+			WiFi.disconnect(true); 
 			flg.Wifi_zapnuta = false; //
 
 			led.blink(200 /* time on */,

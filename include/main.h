@@ -7,7 +7,6 @@
 #include "constants.h"
 #include "MyBlinker.h"
 
-
 typedef int32_t i32;
 typedef int16_t i16;
 typedef int8_t i8;
@@ -18,7 +17,7 @@ typedef uint8_t u8;
 
 typedef const uint32_t uc32; /*!< Read Only */
 typedef const uint16_t uc16; /*!< Read Only */
-typedef const uint8_t uc8;	  /*!< Read Only */
+typedef const uint8_t uc8;	 /*!< Read Only */
 
 #define maxPocetZaznamov 1000
 #define maxVelkostLogBuffera 15000
@@ -66,9 +65,9 @@ typedef struct
 #define CMD_RW 0x80		  // 128
 // ACK_NOK
 #define NOKcode_countOverflow 1 // vela dat v pakete
-#define NOKcode_sumaError 2	  // nesedi suma
-#define NOKcode_missingData 3	  // chynaju data v pakete
-#define NOKcode_naznamyMSGID 4  //
+#define NOKcode_sumaError 2		// nesedi suma
+#define NOKcode_missingData 3	// chynaju data v pakete
+#define NOKcode_naznamyMSGID 4	//
 
 extern const char *soft_ap_ssid;
 extern const char *soft_ap_password;
@@ -92,7 +91,8 @@ extern char TX_BUF[];
 extern FLAGS_t flg;
 extern LedBlinker led;
 extern u8 CANadresa;
-
+extern u8 Obraz_DIN;
+extern u8 Obraz_DO;
 
 void Loop_1ms(void);
 void Loop_10ms(void);
