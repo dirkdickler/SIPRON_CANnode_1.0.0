@@ -188,11 +188,6 @@ void Loop_10ms()
 	{
 		if (flg.Wifi_zapnuta == false)
 		{
-			log_i("!!!!  Zapinam WIFI !!! ");
-			WiFi_init();
-			flg.Wifi_zapnuta = true;
-			myTimer.Wifi_ON_timeout = 6 * 10; // sekund
-
 			led.blink(200 /* time on */,
 					  200 /* time off */,
 					  3 /* cycles */,
@@ -200,6 +195,11 @@ void Loop_10ms()
 					  0xffff /* secuences */,
 					  NULL /* function to call when finished */
 			);
+
+			log_i("!!!!  Zapinam WIFI !!! ");
+			WiFi_init();
+			flg.Wifi_zapnuta = true;
+			myTimer.Wifi_ON_timeout = 6 * 10; // sekund
 		}
 	}
 }
@@ -245,7 +245,7 @@ void Loop_1sek(void)
 		{
 			log_i("Ubehol cas zapnutia Wifi - vypinam Wifinu");
 			WiFi.enableAP(false);
-			WiFi.disconnect(true); 
+			WiFi.disconnect(true);
 			flg.Wifi_zapnuta = false; //
 
 			led.blink(200 /* time on */,

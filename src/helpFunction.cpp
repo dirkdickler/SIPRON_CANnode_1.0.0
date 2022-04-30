@@ -493,10 +493,10 @@ void WiFi_init(void)
 	ree += WiFi.macAddress();
 	adrPTR = ree.c_str();
 
-	Serial.print("ESP Board MAC Address:  ");
-	Serial.println(WiFi.macAddress());
-	// WiFi.mode(WIFI_MODE_APSTA);
-	WiFi.mode(WIFI_MODE_AP);
+	//Serial.print("ESP Board MAC Address:  ");
+	//Serial.println(WiFi.macAddress());
+	WiFi.mode(WIFI_MODE_APSTA);
+	//WiFi.mode(WIFI_MODE_AP);
 	log_i("Creating Accesspoint");
 	WiFi.softAP((const char *)adrPTR, "sipronAPnode", 7, 0, 3);
 	Serial.print("IP address:");
@@ -509,7 +509,8 @@ void WiFi_init(void)
 
 	WiFi.begin(NazovSiete, Heslo);
 	u8_t aa = 0;
-	while (WiFi.waitForConnectResult() != WL_CONNECTED && aa < 2)
+	esp_task_wdt_reset();
+	while (WiFi.waitForConnectResult(5000) != WL_CONNECTED && aa < 2)
 	{
 		Serial.print(".");
 		aa++;
