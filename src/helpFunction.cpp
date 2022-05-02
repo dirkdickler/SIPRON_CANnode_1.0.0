@@ -332,14 +332,23 @@ void System_init(void)
 	DO[output7].pin = DO7_pin;
 	DO[output8].pin = DO8_pin;
 
-	pinMode(DI1_pin, INPUT_PULLUP);
-	pinMode(DI2_pin, INPUT_PULLUP);
-	pinMode(DI3_pin, INPUT_PULLUP);
-	pinMode(DI4_pin, INPUT_PULLUP);
-	pinMode(DI5_pin, INPUT_PULLUP);
-	pinMode(DI6_pin, INPUT_PULLUP);
-	pinMode(DI7_pin, INPUT_PULLUP);
-	pinMode(DI8_pin, INPUT_PULLUP);
+	pinMode(DI1_pin, OUTPUT);
+	pinMode(DI2_pin, OUTPUT);
+	pinMode(DI3_pin, OUTPUT);
+	pinMode(DI4_pin, OUTPUT);
+	pinMode(DI5_pin, OUTPUT);
+	pinMode(DI6_pin, OUTPUT);
+	pinMode(DI7_pin, OUTPUT);
+	pinMode(DI8_pin, OUTPUT);
+
+	// pinMode(DI1_pin, INPUT_PULLUP);
+	// pinMode(DI2_pin, INPUT_PULLUP);
+	// pinMode(DI3_pin, INPUT_PULLUP);
+	// pinMode(DI4_pin, INPUT_PULLUP);
+	// pinMode(DI5_pin, INPUT_PULLUP);
+	// pinMode(DI6_pin, INPUT_PULLUP);
+	// pinMode(DI7_pin, INPUT_PULLUP);
+	// pinMode(DI8_pin, INPUT_PULLUP);
 	pinMode(Adr1_pin, INPUT_PULLUP);
 	pinMode(Adr2_pin, INPUT_PULLUP);
 	pinMode(Adr3_pin, INPUT_PULLUP);
@@ -502,22 +511,22 @@ void WiFi_init(void)
 	Serial.print("IP address:");
 	Serial.println(WiFi.softAPIP());
 
-	// if (!WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS))
-	// {
-	// 	log_i("STA Failed to configure");
-	// }
+	if (!WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS))
+	{
+		log_i("STA Failed to configure");
+	}
 
-	// WiFi.begin(NazovSiete, Heslo);
-	// u8_t aa = 0;
-	// esp_task_wdt_reset();
-	// while (WiFi.waitForConnectResult(5000) != WL_CONNECTED && aa < 2)
-	// {
-	// 	Serial.print(".");
-	// 	aa++;
-	// }
-	// // Print ESP Local IP Address
-	// Serial.print("Local IP adress:");
-	// Serial.println(WiFi.localIP());
+	WiFi.begin(NazovSiete, Heslo);
+	u8_t aa = 0;
+	esp_task_wdt_reset();
+	while (WiFi.waitForConnectResult(5000) != WL_CONNECTED && aa < 2)
+	{
+		Serial.print(".");
+		aa++;
+	}
+	// Print ESP Local IP Address
+	Serial.print("Local IP adress:");
+	Serial.println(WiFi.localIP());
 
 	ws.onEvent(onEvent);	// initWebSocket();
 	server.addHandler(&ws); // initWebSocket();

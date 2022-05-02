@@ -29,7 +29,7 @@
 // const char* ssid = "Grabcovi";
 // const char* password = "40177298";
 const char *soft_ap_ssid = "SipronCAN xx:xx:xx:xx:xx:xx";
-const char *soft_ap_password = "Sipron";
+const char *soft_ap_password = "SipronCAN";
 // const char *ssid = "semiart";
 // const char *password = "aabbccddff";
 char NazovSiete[30];
@@ -179,11 +179,6 @@ void Loop_10ms()
 
 	Obraz_DO = Output_Handler();
 
-	if (DIN[7].input == true)
-	{
-		DO[7].output = true;
-	} // TODO toto zmaz len na testy pri vyvoji
-
 	if (digitalRead(Boot_pin) == 0)
 	{
 		if (flg.Wifi_zapnuta == false)
@@ -199,7 +194,8 @@ void Loop_10ms()
 			log_i("!!!!  Zapinam WIFI !!! ");
 			WiFi_init();
 			flg.Wifi_zapnuta = true;
-			myTimer.Wifi_ON_timeout = 6 * 10; // sekund
+			myTimer.Wifi_ON_timeout = 60 * 10; // sekund
+			DO[7].output = true;
 		}
 	}
 }
