@@ -528,7 +528,7 @@ void WiFi_init(bool reinit )
 	Serial.print("Local IP adress:");
 	Serial.println(WiFi.localIP());
    
-   if (  reinit == FirstInit)
+   if (  reinit == FirstInit) //toto reinit je len preto ze to potom zere STACK
    {
 	   log_i("Inicializujem celu WIFI aj s OTA atd..");
 	   ws.onEvent(onEvent);	   // initWebSocket();
