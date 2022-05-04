@@ -178,7 +178,11 @@ void Loop_10ms()
 {
 	Obraz_DIN = ScanInputs();
 	CANadresa = Read_DIPAdress();
-
+	for (int i = 0; i <pocetDIN; i++)
+	{
+		if (DIN[i].input == true)
+			DO[i].output = true;
+	}
 	Obraz_DO = Output_Handler();
 
 	if (digitalRead(Boot_pin) == 0)
@@ -197,7 +201,7 @@ void Loop_10ms()
 			WiFi_init(Re_Init);
 			flg.Wifi_zapnuta = true;
 			myTimer.Wifi_ON_timeout = 6 * 10; // sekund
-			DO[7].output = true;
+			
 		}
 	}
 }
