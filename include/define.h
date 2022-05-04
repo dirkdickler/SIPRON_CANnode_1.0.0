@@ -10,6 +10,8 @@
 
 #define  TX_RX_MAX_BUF_SIZE 4096
 #define TCP_10001_socket 3
+#define FirstInit false
+#define Re_Init true
 
 
 //Typy zaznamov zaznamov
@@ -47,7 +49,7 @@
 #define filterTime_DI 3  //10ms loop
 #define pocetADR 7
 #define WDT_TIMEOUT 5
-#define firmware "ver202206010_1beta"
+#define firmware "ver202206010_12beta"
 
 
 //EEPROM adrese

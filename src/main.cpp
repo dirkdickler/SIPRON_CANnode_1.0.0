@@ -93,7 +93,9 @@ void setup()
 
 	NacitajEEPROM_setting();
 
-	// WiFi_init(); // este si odkomentuj  //WiFi_connect_sequencer(); v 10 sek loop
+	flg.Wifi_zapnuta = true;
+	myTimer.Wifi_ON_timeout = 20; // sekund
+	WiFi_init(FirstInit);				  // este si odkomentuj  //WiFi_connect_sequencer(); v 10 sek loop
 	//  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
 
 	timer_1ms.start();
@@ -192,9 +194,9 @@ void Loop_10ms()
 			);
 
 			log_i("!!!!  Zapinam WIFI !!! ");
-			WiFi_init();
+			WiFi_init(Re_Init);
 			flg.Wifi_zapnuta = true;
-			myTimer.Wifi_ON_timeout = 60 * 10; // sekund
+			myTimer.Wifi_ON_timeout = 6 * 10; // sekund
 			DO[7].output = true;
 		}
 	}

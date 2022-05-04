@@ -490,7 +490,7 @@ void onEvent(AsyncWebSocket *server,
 	}
 }
 // static char NazovAP_bodu[50] = {0,};
-void WiFi_init(void)
+void WiFi_init(bool reinit )
 {
 	String ree = "SipronCAN ";
 	char NazovAP_bodu[150] = {
@@ -527,15 +527,19 @@ void WiFi_init(void)
 	// Print ESP Local IP Address
 	Serial.print("Local IP adress:");
 	Serial.println(WiFi.localIP());
+   
+   if (  reinit == FirstInit)
+   {
+	   log_i("Inicializujem celu WIFI aj s OTA atd..");
+	   ws.onEvent(onEvent);	   // initWebSocket();
+	   server.addHandler(&ws); // initWebSocket();
 
-	ws.onEvent(onEvent);	// initWebSocket();
-	server.addHandler(&ws); // initWebSocket();
+	   FuncServer_On();
 
-	FuncServer_On();
+	   AsyncElegantOTA.begin(&server, "admin", "sipron"); // Start ElegantOTA
 
-	AsyncElegantOTA.begin(&server, "admin", "sipron"); // Start ElegantOTA
-
-	server.begin();
+	   server.begin();
+   }
 }
 
 void WiFi_connect_sequencer(void) // vplas kazdych 10 sek loop
