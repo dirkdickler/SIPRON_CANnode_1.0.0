@@ -200,7 +200,7 @@ void Loop_10ms()
 			log_i("!!!!  Zapinam WIFI !!! ");
 			WiFi_init(Re_Init);
 			flg.Wifi_zapnuta = true;
-			myTimer.Wifi_ON_timeout = 6 * 10; // sekund
+			myTimer.Wifi_ON_timeout = 60 * 10; // sekund
 			
 		}
 	}
