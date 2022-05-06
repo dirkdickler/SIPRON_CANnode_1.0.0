@@ -361,7 +361,7 @@ void FuncServer_On(void)
 			  HTTP_GET,
 			  [](AsyncWebServerRequest *request)
 			  {
-				  if (!request->authenticate("admin", "adum"))
+				  if (!request->authenticate("admin", "SipronCAN"))
 					  return request->requestAuthentication();
 				  request->send(200, "text/html", handle_Zadavanie_IP_setting());
 			  });
@@ -392,7 +392,7 @@ void FuncServer_On(void)
 			  HTTP_GET,
 			  [](AsyncWebServerRequest *request)
 			  {
-				  if (!request->authenticate("admin", "radecek78"))
+				  if (!request->authenticate("admin", "SipronCAN"))
 					  return request->requestAuthentication();
 
 				  request->send(200, "text/html", "resetujem!!!");

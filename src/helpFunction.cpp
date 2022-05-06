@@ -536,7 +536,7 @@ void WiFi_init(bool reinit )
 
 	   FuncServer_On();
 
-	   AsyncElegantOTA.begin(&server, "admin", "sipron"); // Start ElegantOTA
+	   AsyncElegantOTA.begin(&server, "admin", "SipronCAN"); // Start ElegantOTA
 
 	   server.begin();
    }
