@@ -193,7 +193,7 @@ void Loop_10ms()
 					  200 /* time off */,
 					  3 /* cycles */,
 					  1000 /* pause between secuences */,
-					  0xffff /* secuences */,
+					  0 /* secuences */,
 					  NULL /* function to call when finished */
 			);
 
@@ -254,7 +254,7 @@ void Loop_1sek(void)
 					  200 /* time off */,
 					  1 /* cycles */,
 					  1000 /* pause between secuences */,
-					  0xffff /* secuences */,
+					  0 /* secuences */,
 					  NULL /* function to call when finished */
 			);
 		}
