@@ -95,7 +95,7 @@ void setup()
 
 	flg.Wifi_zapnuta = true;
 	myTimer.Wifi_ON_timeout = 20; // sekund
-	WiFi_init(FirstInit);				  // este si odkomentuj  //WiFi_connect_sequencer(); v 10 sek loop
+	WiFi_init(FirstInit);		  // este si odkomentuj  //WiFi_connect_sequencer(); v 10 sek loop
 	//  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
 
 	timer_1ms.start();
@@ -178,7 +178,7 @@ void Loop_10ms()
 {
 	Obraz_DIN = ScanInputs();
 	CANadresa = Read_DIPAdress();
-	for (int i = 0; i <pocetDIN; i++)
+	for (int i = 0; i < pocetDIN; i++)
 	{
 		if (DIN[i].input == true)
 			DO[i].output = true;
@@ -201,7 +201,6 @@ void Loop_10ms()
 			WiFi_init(Re_Init);
 			flg.Wifi_zapnuta = true;
 			myTimer.Wifi_ON_timeout = 60 * 10; // sekund
-			
 		}
 	}
 }
@@ -289,7 +288,7 @@ void Loop_1sek(void)
 	log_i("HEAP free:%s - CAN adresa: %u - Vstupy: %u - Vystupy: %u", locBuf, CANadresa, Obraz_DIN, Obraz_DO);
 
 	String rr = "[1sek Loop] signal: " + (String)WiFi.RSSI() + "dBm" +
-				"  Vstupy: " + Obraz_DIN + "  Vystupy: " + Obraz_DO + "\r\n ";
+				"  IN: " + Obraz_DIN + "  OUT: " + Obraz_DO + "  Wifi OFF za: " + myTimer.Wifi_ON_timeout + "\r\n ";
 
 	DebugMsgToWebSocket(rr);
 }
