@@ -434,6 +434,13 @@ int8_t NacitajEEPROM_setting(void)
 		log_i("EEPROM je este prazna, nachavma default hodnoty");
 		sprintf(NazovSiete, "semiart");
 		sprintf(Heslo, "aabbccddff");
+
+		EEPROM.writeString(EE_IPadresa, "192.168.1.10");
+		EEPROM.writeString(EE_SUBNET, "255.255.255.0");
+		EEPROM.writeString(EE_Brana, "192.168.1.1");
+		EEPROM.writeString(EE_NazovSiete, "semiart");
+		EEPROM.writeString(EE_Heslosiete, "aabbccddff");
+		EEPROM.commit();
 		return 1;
 	}
 }
