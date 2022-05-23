@@ -95,7 +95,7 @@ void setup()
 
 	flg.Wifi_zapnuta = true;
 	myTimer.Wifi_ON_timeout = 20; // sekund
-	WiFi_init(FirstInit);		  // este si odkomentuj  //WiFi_connect_sequencer(); v 10 sek loop
+	WiFi_init(FirstInit);			// este si odkomentuj  //WiFi_connect_sequencer(); v 10 sek loop
 	//  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
 
 	timer_1ms.start();
@@ -104,29 +104,29 @@ void setup()
 	timer_1sek.start();
 	timer_10sek.start();
 	esp_task_wdt_init(WDT_TIMEOUT, true); // enable panic so ESP32 restarts
-	esp_task_wdt_add(NULL);				  // add current thread to WDT watch
+	esp_task_wdt_add(NULL);					  // add current thread to WDT watch
 
 	// RS485 musis spustit az tu, lebo ak ju das hore a ESP ceka na konnect wifi, a pridu nejake data na RS485, tak FreeRTOS =RESET  asi overflow;
 	// Serial1.begin(9600);
 
 	xTaskCreatePinnedToCore(
-		TWAI_RX_Task,		// Task function
-		"task1",			// Name
-		6000,				// Stack size
-		nullptr,			// Parameters
-		1,					// Priority
-		&TWAI_RX_task_hndl, // handle
-		0					// CPU
+		 TWAI_RX_Task,			// Task function
+		 "task1",				// Name
+		 6000,					// Stack size
+		 nullptr,				// Parameters
+		 1,						// Priority
+		 &TWAI_RX_task_hndl, // handle
+		 0							// CPU
 	);
 
 	xTaskCreatePinnedToCore(
-		TestovanieDosky_Task,		// Task function
-		"task2",					// Name
-		6000,						// Stack size
-		nullptr,					// Parameters
-		1,							// Priority
-		&TestovanieDosky_task_hndl, // handle
-		0							// CPU
+		 TestovanieDosky_Task,		  // Task function
+		 "task2",						  // Name
+		 6000,							  // Stack size
+		 nullptr,						  // Parameters
+		 1,								  // Priority
+		 &TestovanieDosky_task_hndl, // handle
+		 0									  // CPU
 	);
 }
 
@@ -190,17 +190,15 @@ void Loop_10ms()
 		if (flg.Wifi_zapnuta == false)
 		{
 			led.blink(200 /* time on */,
-					  200 /* time off */,
-					  3 /* cycles */,
-					  1000 /* pause between secuences */,
-					  0 /* secuences */,
-					  NULL /* function to call when finished */
+						 200 /* time off */,
+						 3 /* cycles */,
+						 1000 /* pause between secuences */,
+						 0 /* secuences */,
+						 NULL /* function to call when finished */
 			);
 
 			log_i("!!!!  Zapinam WIFI !!! ");
-			WiFi_init(Re_Init);
-			flg.Wifi_zapnuta = true;
-			myTimer.Wifi_ON_timeout = 60 * 10; // sekund
+			myTimer.Wifi_zapsi_za_X_sekund = 5;
 		}
 	}
 }
@@ -233,12 +231,12 @@ void Loop_1sek(void)
 
 	// log_i("[1sek Loop]  mam 1 sek....  ");
 	String sprava; // = rtc.getTime("\r\n[%H:%M:%S] karta a toto cas z PCF8563:");
-				   // unsigned long start = micros();
-				   // sprava += PCFrtc.formatDateTime(PCF_TIMEFORMAT_YYYY_MM_DD_H_M_S);
-				   // unsigned long end = micros();
-				   // unsigned long delta = end - start;
-				   // Serial.print("DELTA PCF8563: ");
-				   // Serial.println(delta);
+						// unsigned long start = micros();
+						// sprava += PCFrtc.formatDateTime(PCF_TIMEFORMAT_YYYY_MM_DD_H_M_S);
+						// unsigned long end = micros();
+						// unsigned long delta = end - start;
+						// Serial.print("DELTA PCF8563: ");
+						// Serial.println(delta);
 
 	if (myTimer.Wifi_ON_timeout)
 	{
@@ -250,12 +248,22 @@ void Loop_1sek(void)
 			flg.Wifi_zapnuta = false; //
 
 			led.blink(200 /* time on */,
-					  200 /* time off */,
-					  1 /* cycles */,
-					  1000 /* pause between secuences */,
-					  0 /* secuences */,
-					  NULL /* function to call when finished */
+						 200 /* time off */,
+						 1 /* cycles */,
+						 1000 /* pause between secuences */,
+						 0 /* secuences */,
+						 NULL /* function to call when finished */
 			);
+		}
+	}
+
+	if (myTimer.Wifi_zapsi_za_X_sekund)
+	{
+		if (--myTimer.Wifi_zapsi_za_X_sekund == 0)
+		{
+			WiFi_init(Re_Init);
+			flg.Wifi_zapnuta = true;
+			myTimer.Wifi_ON_timeout = 60 * 10; // sekund
 		}
 	}
 	// if ( flg.Wifi_zapnuta == false) { LEDblinker();}
@@ -288,7 +296,7 @@ void Loop_1sek(void)
 	log_i("HEAP free:%s - CAN adresa: %u - Vstupy: %u - Vystupy: %u", locBuf, CANadresa, Obraz_DIN, Obraz_DO);
 
 	String rr = "[1sek Loop] signal: " + (String)WiFi.RSSI() + "dBm" +
-				"  IN: " + Obraz_DIN + "  OUT: " + Obraz_DO + "  Wifi OFF za: " + myTimer.Wifi_ON_timeout + "\r\n ";
+					"  IN: " + Obraz_DIN + "  OUT: " + Obraz_DO + "  Wifi OFF za: " + myTimer.Wifi_ON_timeout + "\r\n ";
 
 	DebugMsgToWebSocket(rr);
 }
@@ -338,46 +346,46 @@ void DebugMsgToWebSocket(String textik)
 void FuncServer_On(void)
 {
 	server.on("/",
-			  HTTP_GET,
-			  [](AsyncWebServerRequest *request)
-			  {
-				  // if (!request->authenticate("ahoj", "xxxx"))
-				  // return request->requestAuthentication();
-				  // request->send_P(200, "text/html", index_html, processor);
-				  request->send_P(200, "text/html", Main);
-			  });
+				 HTTP_GET,
+				 [](AsyncWebServerRequest *request)
+				 {
+					 // if (!request->authenticate("ahoj", "xxxx"))
+					 // return request->requestAuthentication();
+					 // request->send_P(200, "text/html", index_html, processor);
+					 request->send_P(200, "text/html", Main);
+				 });
 	server.on("/IOpage",
-			  HTTP_GET,
-			  [](AsyncWebServerRequest *request)
-			  {
-				  // if (!request->authenticate("ahoj", "xxxx"))
-				  // return request->requestAuthentication();
-				  // request->send_P(200, "text/html", index_html, processor);
-				  request->send_P(200, "text/html", IOpage);
-			  });
+				 HTTP_GET,
+				 [](AsyncWebServerRequest *request)
+				 {
+					 // if (!request->authenticate("ahoj", "xxxx"))
+					 // return request->requestAuthentication();
+					 // request->send_P(200, "text/html", index_html, processor);
+					 request->send_P(200, "text/html", IOpage);
+				 });
 
 	server.on("/nastavip",
-			  HTTP_GET,
-			  [](AsyncWebServerRequest *request)
-			  {
-				  if (!request->authenticate("admin", "SipronCAN"))
-					  return request->requestAuthentication();
-				  request->send(200, "text/html", handle_Zadavanie_IP_setting());
-			  });
+				 HTTP_GET,
+				 [](AsyncWebServerRequest *request)
+				 {
+					 if (!request->authenticate("admin", "SipronCAN"))
+						 return request->requestAuthentication();
+					 request->send(200, "text/html", handle_Zadavanie_IP_setting());
+				 });
 
 	server.on("/Nastaveni",
-			  HTTP_GET,
-			  [](AsyncWebServerRequest *request)
-			  {
-				  handle_Nastaveni(request);
-				  request->send(200, "text/html", "Nastavujem a ukladam do EEPROM");
-				  Serial.println("Idem resetovat ESP");
-				  delay(2000);
-				  esp_restart();
-			  });
+				 HTTP_GET,
+				 [](AsyncWebServerRequest *request)
+				 {
+					 handle_Nastaveni(request);
+					 request->send(200, "text/html", "Nastavujem a ukladam do EEPROM");
+					 Serial.println("Idem resetovat ESP");
+					 delay(2000);
+					 esp_restart();
+				 });
 
 	server.on("/status", HTTP_GET, [](AsyncWebServerRequest *request)
-			  {
+				 {
 					 char ttt[500];
 					 
 
@@ -388,24 +396,24 @@ void FuncServer_On(void)
 					 request->send(200, "text/html", ttt); });
 
 	server.on("/reset",
-			  HTTP_GET,
-			  [](AsyncWebServerRequest *request)
-			  {
-				  if (!request->authenticate("admin", "SipronCAN"))
-					  return request->requestAuthentication();
+				 HTTP_GET,
+				 [](AsyncWebServerRequest *request)
+				 {
+					 if (!request->authenticate("admin", "SipronCAN"))
+						 return request->requestAuthentication();
 
-				  request->send(200, "text/html", "resetujem!!!");
-				  delay(1000);
-				  esp_restart();
-			  });
+					 request->send(200, "text/html", "resetujem!!!");
+					 delay(1000);
+					 esp_restart();
+				 });
 
 	server.on("/debug",
-			  HTTP_GET,
-			  [](AsyncWebServerRequest *request)
-			  {
-				  LogEnebleWebPage = true;
-				  request->send_P(200, "text/html", DebugLog_html);
-			  });
+				 HTTP_GET,
+				 [](AsyncWebServerRequest *request)
+				 {
+					 LogEnebleWebPage = true;
+					 request->send_P(200, "text/html", DebugLog_html);
+				 });
 }
 
 //***********************************************  Hepl function ********************************************/
@@ -422,13 +430,13 @@ void ESPinfo(void)
 	Serial.print(APB_CLK_FREQ);
 	Serial.println(" Hz");
 	Serial.printf("%d cores Wifi %s%s\n",
-				  chip_info.cores,
-				  (chip_info.features & CHIP_FEATURE_BT) ? "/BT" : "",
-				  (chip_info.features & CHIP_FEATURE_BLE) ? "/BLE" : "");
+					  chip_info.cores,
+					  (chip_info.features & CHIP_FEATURE_BT) ? "/BT" : "",
+					  (chip_info.features & CHIP_FEATURE_BLE) ? "/BLE" : "");
 	Serial.printf("\r\nESP32 Chip Revision: %d\r\n ", chip_info.revision);
 	Serial.printf("%dMB %s flash\r\n",
-				  spi_flash_get_chip_size() / (1024 * 1024),
-				  (chip_info.features & CHIP_FEATURE_EMB_FLASH) ? "embeded" : "external");
+					  spi_flash_get_chip_size() / (1024 * 1024),
+					  (chip_info.features & CHIP_FEATURE_EMB_FLASH) ? "embeded" : "external");
 
 	Serial.printf("\r\nTotal heap: %d\r\n", ESP.getHeapSize());
 	Serial.printf("Free heap: %d\r\n", ESP.getFreeHeap());
