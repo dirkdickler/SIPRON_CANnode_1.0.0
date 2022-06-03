@@ -422,7 +422,7 @@ void ESPinfo(void)
 {
 	esp_chip_info_t chip_info;
 	esp_chip_info(&chip_info);
-	Serial.println("\r\n*******************************************************************");
+	Serial.println("\r\\r\n*******************************************************************\r\n");
 	Serial.print("ESP Board MAC Address:  ");
 	Serial.println(WiFi.macAddress());
 	Serial.println("\r\nHardware info");
@@ -448,9 +448,9 @@ void ESPinfo(void)
 	Serial.print("Uvolnujem buffer psdRamBuffer 500kz PSRAM ");
 	free(psdRamBuffer);
 	Serial.printf(" Free PSRAM po uvolneni : %d\r\n", ESP.getFreePsram()); // log_d("Free PSRAM: %d", ESP.getFreePsram());
-	Serial.println("\r\n*******************************************************************");
 	Serial.print("ESP32 SDK: ");
 	Serial.println(ESP.getSdkVersion());
+	Serial.println("\r\n*******************************************************************\r\n");
 }
 
 void TWAI_RX_Task(void *arg)
