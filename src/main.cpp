@@ -93,8 +93,8 @@ void setup()
 
 	NacitajEEPROM_setting();
 
-	flg.Wifi_zapnuta = true;
-	myTimer.Wifi_ON_timeout = 20; // sekund
+	flg.Wifi_zapnuta = false;
+	myTimer.Wifi_ON_timeout = 0; // sekund
 	WiFi_init(FirstInit);			// este si odkomentuj  //WiFi_connect_sequencer(); v 10 sek loop
 	//  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
 
