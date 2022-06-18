@@ -226,7 +226,7 @@ void Loop_100ms(void)
 	// if ( flg.Wifi_zapnuta == true) { LEDblinker();}
 }
 
-void Loop_1sek(void)
+void Loop_1sek(void) 
 {
 
 	// log_i("[1sek Loop]  mam 1 sek....  ");
