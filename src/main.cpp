@@ -119,15 +119,15 @@ void setup()
 		 0							// CPU
 	);
 
-	xTaskCreatePinnedToCore(
-		 TestovanieDosky_Task,		  // Task function
-		 "task2",						  // Name
-		 6000,							  // Stack size
-		 nullptr,						  // Parameters
-		 1,								  // Priority
-		 &TestovanieDosky_task_hndl, // handle
-		 0									  // CPU
-	);
+	// xTaskCreatePinnedToCore(
+	// 	 TestovanieDosky_Task,		  // Task function
+	// 	 "task2",						  // Name
+	// 	 6000,							  // Stack size
+	// 	 nullptr,						  // Parameters
+	// 	 1,								  // Priority
+	// 	 &TestovanieDosky_task_hndl, // handle
+	// 	 0									  // CPU
+	// );
 }
 
 void loop()
@@ -279,15 +279,15 @@ void Loop_1sek(void)
 	// 	message.data[i] = 2;
 	// }
 
-	// Queue message for transmission
-	if (0) // twai_transmit(&message, pdMS_TO_TICKS(1000)) == ESP_OK)
-	{
-		log_i("Message queued for transmission");
-	}
-	else
-	{
-		// log_i("Failed to queue message for transmission\n");
-	}
+	// // Queue message for transmission
+	// if ( twai_transmit(&message, pdMS_TO_TICKS(1000)) == ESP_OK)
+	// {
+	// 	log_i("Message queued for transmission");
+	// }
+	// else
+	// {
+	// 	 log_i("Failed to queue message for transmission\n");
+	// }
 
 	float flt = (float)ESP.getFreeHeap();
 	flt /= 1000.0f;
@@ -458,7 +458,7 @@ void TWAI_RX_Task(void *arg)
 	log_i("Spustam TWAI_RX_Task");
 
 	log_i("Configure ESP32 CAN");
-	twai_general_config_t g_config = TWAI_GENERAL_CONFIG_DEFAULT(GPIO_NUM_34, GPIO_NUM_33, TWAI_MODE_NORMAL);
+	twai_general_config_t g_config = TWAI_GENERAL_CONFIG_DEFAULT(GPIO_NUM_33, GPIO_NUM_34, TWAI_MODE_NORMAL);
 	twai_timing_config_t t_config = TWAI_TIMING_CONFIG_125KBITS();
 	twai_filter_config_t f_config = TWAI_FILTER_CONFIG_ACCEPT_ALL();
 
