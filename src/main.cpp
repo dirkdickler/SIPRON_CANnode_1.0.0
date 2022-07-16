@@ -66,6 +66,7 @@ SEMAFOR_t semafor;
 u8 CANadresa = 0;
 u8 Obraz_DIN = 0;
 u8 Obraz_DO = 0;
+twai_message_t messageSend;
 
 static const uint32_t DESIRED_BIT_RATE = 125UL * 1000UL; // 125kb/s
 
@@ -95,7 +96,7 @@ void setup()
 
 	flg.Wifi_zapnuta = false;
 	myTimer.Wifi_ON_timeout = 0; // sekund
-	WiFi_init(FirstInit);			// este si odkomentuj  //WiFi_connect_sequencer(); v 10 sek loop
+	WiFi_init(FirstInit);		  // este si odkomentuj  //WiFi_connect_sequencer(); v 10 sek loop
 	//  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
 
 	timer_1ms.start();
@@ -172,6 +173,21 @@ void Loop_1ms()
 			} /* code */
 		}
 	}
+
+	if (myTimer.timeToSendCANReply)
+	{
+		if (--myTimer.timeToSendCANReply == 0)
+		{
+			if (twai_transmit(&messageSend, pdMS_TO_TICKS(1000)) == ESP_OK)
+			{
+				log_i("Message queued for transmission");
+			}
+			else
+			{
+				log_i("Failed to queue message for transmission\n");
+			}
+		}
+	}
 }
 
 void Loop_10ms()
@@ -226,7 +242,7 @@ void Loop_100ms(void)
 	// if ( flg.Wifi_zapnuta == true) { LEDblinker();}
 }
 
-void Loop_1sek(void) 
+void Loop_1sek(void)
 {
 
 	// log_i("[1sek Loop]  mam 1 sek....  ");
@@ -500,7 +516,60 @@ void TWAI_RX_Task(void *arg)
 
 			log_i("ID is %d", message.identifier);
 
-			if (!(message.rtr))
+			u32 locadresa = message.identifier >> 4; //
+			log_i("CAN adresa je %d", locadresa);
+			u32 opCode = message.identifier & 0b00000001111;
+			log_i("OpCode  je %d", opCode);
+
+			if (locadresa == 0 || locadresa == CANadresa)
+			{
+				if (opCode == 0) // nahodit Vystupy
+				{
+					for (u8 i = 0; i < pocetDO; i++)
+					{
+						if (isbit(message.data[0], i))
+						{
+							DO[i].output = true;
+						}
+						else
+						{
+							DO[i].output = false;
+						}
+					}
+				}
+				else if (opCode == 1) // vrat vstupy a vystupy
+				{
+					log_i("posielam CAN frame");
+
+					messageSend.identifier = CANadresa;
+					messageSend.identifier <<= 4;
+					messageSend.identifier += opCode;
+					messageSend.extd = 0;
+					messageSend.data_length_code = 2;
+					messageSend.rtr = false;
+					messageSend.data[0] = Obraz_DIN;
+					messageSend.data[1] = Obraz_DO;
+
+					if (locadresa == CANadresa)
+					{
+						myTimer.timeToSendCANReply = 1; // odosli okamzite
+					}
+					else if (locadresa == 0) // odosli 2ms* CANadresa lebo odpovedaju vsetky na broadcast
+					{
+						myTimer.timeToSendCANReply = (2 * CANadresa);
+					}
+				}
+			}
+
+			if ((message.rtr))
+			{
+				log_i("Message ma RTR");
+			}
+			else
+			{
+				log_i("Message NEma RTR");
+			}
+
 			{
 				for (int i = 0; i < message.data_length_code; i++)
 				{
