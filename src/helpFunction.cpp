@@ -511,10 +511,11 @@ void WiFi_init(bool reinit )
 
 	//Serial.print("ESP Board MAC Address:  ");
 	//Serial.println(WiFi.macAddress());
-	//WiFi.mode(WIFI_MODE_APSTA);
 	WiFi.mode(WIFI_MODE_AP);
 	log_i("Creating Accesspoint");
 	WiFi.softAP((const char *)adrPTR, "sipronAPnode", 7, 0, 3);
+	delay(1000);
+	
 	Serial.print("IP address:");
 	Serial.println(WiFi.softAPIP());
 	

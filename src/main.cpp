@@ -214,7 +214,7 @@ void Loop_10ms()
 			);
 
 			log_i("!!!!  Zapinam WIFI !!! ");
-			myTimer.Wifi_zapsi_za_X_sekund = 5;
+			myTimer.Wifi_zapsi_za_X_sekund = 3;
 		}
 	}
 }
@@ -260,7 +260,8 @@ void Loop_1sek(void)
 		{
 			log_i("Ubehol cas zapnutia Wifi - vypinam Wifinu");
 			WiFi.softAPdisconnect(false);
-			//WiFi.enableAP(false);
+			delay(1000);
+			WiFi.enableAP(false);
 			//WiFi.disconnect(true);
 			flg.Wifi_zapnuta = false; //
 
@@ -279,7 +280,7 @@ void Loop_1sek(void)
 		if (--myTimer.Wifi_zapsi_za_X_sekund == 0)
 		{
 			WiFi_init(Re_Init);
-			//WiFi. enableAP(true);
+			WiFi. enableAP(true);
 			flg.Wifi_zapnuta = true;
 			myTimer.Wifi_ON_timeout = 30 * 1; // sekund
 		}
