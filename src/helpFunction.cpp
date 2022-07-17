@@ -517,20 +517,21 @@ void WiFi_init(bool reinit )
 	WiFi.softAP((const char *)adrPTR, "sipronAPnode", 7, 0, 3);
 	Serial.print("IP address:");
 	Serial.println(WiFi.softAPIP());
+	
 
-	if (!WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS))
-	{
-		log_i("STA Failed to configure");
-	}
+	// if (!WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS))
+	// {
+	// 	log_i("STA Failed to configure");
+	// }
 
-	WiFi.begin(NazovSiete, Heslo);
-	u8_t aa = 0;
-	esp_task_wdt_reset();
-	while (WiFi.waitForConnectResult(5000) != WL_CONNECTED && aa < 2)
-	{
-		Serial.print(".");
-		aa++;
-	}
+	//WiFi.begin(NazovSiete, Heslo);
+	// u8_t aa = 0;
+	// esp_task_wdt_reset();
+	// while (WiFi.waitForConnectResult(5000) != WL_CONNECTED && aa < 2)
+	// {
+	// 	Serial.print(".");
+	// 	aa++;
+	// }
 	// Print ESP Local IP Address
 	Serial.print("Local IP adress:");
 	Serial.println(WiFi.localIP());

@@ -63,7 +63,7 @@ VSTUP_t DIN[pocetDIN];
 VSTUP_t ADR[pocetADR];
 VYSTUP_t DO[pocetDO];
 SEMAFOR_t semafor;
-u8 CANadresa = 0;
+u8 CANadresa = 255;
 u8 Obraz_DIN = 0;
 u8 Obraz_DO = 0;
 twai_message_t messageSend;
@@ -95,7 +95,7 @@ void setup()
 	NacitajEEPROM_setting();
 
 	flg.Wifi_zapnuta = false;
-	myTimer.Wifi_ON_timeout = 0; // sekund
+	myTimer.Wifi_ON_timeout = 30; // sekund
 	WiFi_init(FirstInit);		  // este si odkomentuj  //WiFi_connect_sequencer(); v 10 sek loop
 	//  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
 
@@ -194,16 +194,16 @@ void Loop_10ms()
 {
 	Obraz_DIN = ScanInputs();
 	CANadresa = Read_DIPAdress();
-	for (int i = 0; i < pocetDIN; i++)
-	{
-		if (DIN[i].input == true)
-			DO[i].output = true;
-	}
+	// for (int i = 0; i < pocetDIN; i++)
+	// {
+	// 	if (DIN[i].input == true)
+	// 		DO[i].output = true;
+	// }
 	Obraz_DO = Output_Handler();
 
 	if (digitalRead(Boot_pin) == 0)
 	{
-		if (flg.Wifi_zapnuta == false)
+		if (flg.Wifi_zapnuta == false  && myTimer.Wifi_zapsi_za_X_sekund == 0)
 		{
 			led.blink(200 /* time on */,
 						 200 /* time off */,
@@ -259,8 +259,9 @@ void Loop_1sek(void)
 		if (--myTimer.Wifi_ON_timeout == 0)
 		{
 			log_i("Ubehol cas zapnutia Wifi - vypinam Wifinu");
-			WiFi.enableAP(false);
-			WiFi.disconnect(true);
+			WiFi.softAPdisconnect(false);
+			//WiFi.enableAP(false);
+			//WiFi.disconnect(true);
 			flg.Wifi_zapnuta = false; //
 
 			led.blink(200 /* time on */,
@@ -278,8 +279,9 @@ void Loop_1sek(void)
 		if (--myTimer.Wifi_zapsi_za_X_sekund == 0)
 		{
 			WiFi_init(Re_Init);
+			//WiFi. enableAP(true);
 			flg.Wifi_zapnuta = true;
-			myTimer.Wifi_ON_timeout = 60 * 10; // sekund
+			myTimer.Wifi_ON_timeout = 30 * 1; // sekund
 		}
 	}
 	// if ( flg.Wifi_zapnuta == false) { LEDblinker();}
@@ -523,7 +525,7 @@ void TWAI_RX_Task(void *arg)
 
 			if (locadresa == 0 || locadresa == CANadresa)
 			{
-				if (opCode == 0) // nahodit Vystupy
+				if (opCode == 0 && message.rtr == 0)// nahodit Vystupy
 				{
 					for (u8 i = 0; i < pocetDO; i++)
 					{
@@ -536,8 +538,16 @@ void TWAI_RX_Task(void *arg)
 							DO[i].output = false;
 						}
 					}
+
+					if (message.data_length_code == 2 && message.data[1] == 1)
+					{
+						opCode = 1; // nastavym na tvrdo ze ma poslat odpoved po nastaveni OUT  hned tu dole nasledne
+						message.data_length_code = 0;
+						message.rtr = 1;
+					}
 				}
-				else if (opCode == 1) // vrat vstupy a vystupy
+
+				if (opCode == 1 && message.data_length_code == 0 && message.rtr == 1) // vrat vstupy a vystupy
 				{
 					log_i("posielam CAN frame");
 
