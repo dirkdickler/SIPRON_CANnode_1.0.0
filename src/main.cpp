@@ -85,7 +85,7 @@ void setup()
 	Serial.begin(115200);
 	Serial.println("        *********************************************************************************");
 	Serial.println("        *                                                                               *");
-	Serial.println("        *                            Spustam applikaciu 1                               *");
+	Serial.println("        *                            Spustam applikaciu 1    OTa                           *");
 	Serial.println("        *                                                                               *");
 	Serial.println("        *********************************************************************************");
 	System_init();
@@ -95,8 +95,8 @@ void setup()
 	NacitajEEPROM_setting();
 
 	flg.Wifi_zapnuta = false;
-	myTimer.Wifi_ON_timeout = 30; // sekund
-	WiFi_init(FirstInit);		  // este si odkomentuj  //WiFi_connect_sequencer(); v 10 sek loop
+	myTimer.Wifi_ON_timeout = 10; // sekund
+	WiFi_init(FirstInit);			// este si odkomentuj  //WiFi_connect_sequencer(); v 10 sek loop
 	//  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
 
 	timer_1ms.start();
@@ -203,7 +203,7 @@ void Loop_10ms()
 
 	if (digitalRead(Boot_pin) == 0)
 	{
-		if (flg.Wifi_zapnuta == false  && myTimer.Wifi_zapsi_za_X_sekund == 0)
+		if (flg.Wifi_zapnuta == false && myTimer.Wifi_zapsi_za_X_sekund == 0)
 		{
 			led.blink(200 /* time on */,
 						 200 /* time off */,
@@ -256,22 +256,25 @@ void Loop_1sek(void)
 
 	if (myTimer.Wifi_ON_timeout)
 	{
-		if (--myTimer.Wifi_ON_timeout == 0)
+     if (digitalRead(Boot_pin) != 0)  //ak je jumper close, tak neodpocitavam cas
 		{
-			log_i("Ubehol cas zapnutia Wifi - vypinam Wifinu");
-			WiFi.softAPdisconnect(false);
-			delay(1000);
-			WiFi.enableAP(false);
-			//WiFi.disconnect(true);
-			flg.Wifi_zapnuta = false; //
+			if (--myTimer.Wifi_ON_timeout == 0)
+			{
+				log_i("Ubehol cas zapnutia Wifi - vypinam Wifinu");
+				// WiFi.softAPdisconnect(false);
+				// delay(1000);
+				WiFi.enableAP(false);
+				// WiFi.disconnect(true);
+				flg.Wifi_zapnuta = false; //
 
-			led.blink(200 /* time on */,
-						 200 /* time off */,
-						 1 /* cycles */,
-						 1000 /* pause between secuences */,
-						 0 /* secuences */,
-						 NULL /* function to call when finished */
-			);
+				led.blink(200 /* time on */,
+							 200 /* time off */,
+							 1 /* cycles */,
+							 1000 /* pause between secuences */,
+							 0 /* secuences */,
+							 NULL /* function to call when finished */
+				);
+			}
 		}
 	}
 
@@ -279,10 +282,10 @@ void Loop_1sek(void)
 	{
 		if (--myTimer.Wifi_zapsi_za_X_sekund == 0)
 		{
-			WiFi_init(Re_Init);
-			WiFi. enableAP(true);
+			// WiFi_init(Re_Init);
+			WiFi.enableAP(true);
 			flg.Wifi_zapnuta = true;
-			myTimer.Wifi_ON_timeout = 30 * 1; // sekund
+			myTimer.Wifi_ON_timeout = 60 * 10; // sekund
 		}
 	}
 	// if ( flg.Wifi_zapnuta == false) { LEDblinker();}
@@ -526,7 +529,7 @@ void TWAI_RX_Task(void *arg)
 
 			if (locadresa == 0 || locadresa == CANadresa)
 			{
-				if (opCode == 0 && message.rtr == 0)// nahodit Vystupy
+				if (opCode == 0 && message.rtr == 0) // nahodit Vystupy
 				{
 					for (u8 i = 0; i < pocetDO; i++)
 					{
