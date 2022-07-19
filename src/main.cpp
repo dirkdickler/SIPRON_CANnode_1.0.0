@@ -85,7 +85,7 @@ void setup()
 	Serial.begin(115200);
 	Serial.println("        *********************************************************************************");
 	Serial.println("        *                                                                               *");
-	Serial.println("        *                            Spustam applikaciu 1    OTa                           *");
+	Serial.println("        *                            Spustam applikaciu 1                               *");
 	Serial.println("        *                                                                               *");
 	Serial.println("        *********************************************************************************");
 	System_init();
@@ -93,11 +93,6 @@ void setup()
 	ESPinfo();
 
 	NacitajEEPROM_setting();
-
-	flg.Wifi_zapnuta = false;
-	myTimer.Wifi_ON_timeout = 10; // sekund
-	WiFi_init(FirstInit);			// este si odkomentuj  //WiFi_connect_sequencer(); v 10 sek loop
-	//  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
 
 	timer_1ms.start();
 	timer_10ms.start();
@@ -203,7 +198,7 @@ void Loop_10ms()
 
 	if (digitalRead(Boot_pin) == 0)
 	{
-		if (flg.Wifi_zapnuta == false && myTimer.Wifi_zapsi_za_X_sekund == 0)
+		if (myTimer.Wifi_ON_timeout == 0 && myTimer.Wifi_zapsi_za_X_sekund == 0)
 		{
 			led.blink(200 /* time on */,
 						 200 /* time off */,
@@ -256,7 +251,7 @@ void Loop_1sek(void)
 
 	if (myTimer.Wifi_ON_timeout)
 	{
-     if (digitalRead(Boot_pin) != 0)  //ak je jumper close, tak neodpocitavam cas
+		if (digitalRead(Boot_pin) != 0) // ak je jumper close, tak neodpocitavam cas
 		{
 			if (--myTimer.Wifi_ON_timeout == 0)
 			{
@@ -280,12 +275,28 @@ void Loop_1sek(void)
 
 	if (myTimer.Wifi_zapsi_za_X_sekund)
 	{
+		//"sequencer"
 		if (--myTimer.Wifi_zapsi_za_X_sekund == 0)
 		{
-			// WiFi_init(Re_Init);
 			WiFi.enableAP(true);
-			flg.Wifi_zapnuta = true;
 			myTimer.Wifi_ON_timeout = 60 * 10; // sekund
+		}
+
+		// po 10 sek od zapnutia nahodim "inicializujem Wifi", lebo na zaciatku som mal nastavene Wifi_zapsi_za_X_sekund = 50;
+		if (myTimer.Wifi_zapsi_za_X_sekund == 40)
+		{
+			Serial.println("Davam WiFI init..");
+			myTimer.Wifi_zapsi_za_X_sekund = 0;
+			myTimer.Wifi_ON_timeout = 10; // po inicializacii ju necham zapnutu na 10 sekund
+			WiFi_init(FirstInit);
+			flg.Wifi_zapnuta = true;
+			led.blink(200 /* time on */,
+						 200 /* time off */,
+						 3 /* cycles */,
+						 1000 /* pause between secuences */,
+						 0 /* secuences */,
+						 NULL /* function to call when finished */
+			);
 		}
 	}
 	// if ( flg.Wifi_zapnuta == false) { LEDblinker();}
@@ -316,6 +327,7 @@ void Loop_1sek(void)
 	char locBuf[50];
 	sprintf(locBuf, "%.3f", flt);
 	log_i("HEAP free:%s - CAN adresa: %u - Vstupy: %u - Vystupy: %u", locBuf, CANadresa, Obraz_DIN, Obraz_DO);
+	Serial.printf("HEAP free:%s - CAN adresa: %u - Vstupy: %u - Vystupy: %u\r\n", locBuf, CANadresa, Obraz_DIN, Obraz_DO);
 
 	String rr = "[1sek Loop] signal: " + (String)WiFi.RSSI() + "dBm" +
 					"  IN: " + Obraz_DIN + "  OUT: " + Obraz_DO + "  Wifi OFF za: " + myTimer.Wifi_ON_timeout + "\r\n ";
@@ -325,6 +337,7 @@ void Loop_1sek(void)
 
 void Loop_10sek(void)
 {
+	Serial.println("-mam 10 sek....");
 	log_i("-mam 10 sek....");
 	static u8_t loc_cnt_10sek = 0;
 	// String sprava = String("\r\n[10sek Loop]  Mam Loop 10 sek....") + rtc.getDateTime(true);

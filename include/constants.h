@@ -120,7 +120,7 @@ typedef struct //
 typedef struct //
 {
 	u16 Wifi_ON_timeout;
-	u16 Wifi_zapsi_za_X_sekund;
+	u8  Wifi_zapsi_za_X_sekund;
 	u16 timeToSendCANReply;
 }TIMERS_t;
 

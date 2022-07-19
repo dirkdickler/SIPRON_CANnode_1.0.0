@@ -301,6 +301,8 @@ u8 Read_DIPAdress(void)
 	{
 		sbi(loca, 6);
 	}
+
+	if (loca == 0) { loca = 255; }
 	return loca;
 }
 
@@ -378,6 +380,8 @@ void System_init(void)
 			  0xffff /* secuences */,
 			  NULL /* function to call when finished */
 	);
+
+	myTimer.Wifi_zapsi_za_X_sekund = 50; // davam 50 akoze v 1sek loop "sequencer"
 
 	log_i("[Func:System_init]  end..");
 }
