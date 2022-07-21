@@ -122,6 +122,8 @@ typedef struct //
 	u16 Wifi_ON_timeout;
 	u8  Wifi_zapsi_za_X_sekund;
 	u16 timeToSendCANReply;
+	u16 CAN_prima_data;
+	u8 CAN_reinitDriver;
 }TIMERS_t;
 
 typedef struct //

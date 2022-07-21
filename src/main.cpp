@@ -74,7 +74,7 @@ char TX_BUF[TX_RX_MAX_BUF_SIZE];
 bool Task_test_inProces = false;
 
 LedBlinker led(LED_pin, COMMON_NEGATIVE);
-
+LedBlinker kontrolka(DO8_pin, COMMON_NEGATIVE);
 //------------------------------------------------------------------------------------------------------------------
 
 /**********************************************************
@@ -85,7 +85,7 @@ void setup()
 	Serial.begin(115200);
 	Serial.println("        *********************************************************************************");
 	Serial.println("        *                                                                               *");
-	Serial.println("        *                            Spustam applikaciu 1                               *");
+	Serial.println("        *                            Spustam applikaciu                                 *");
 	Serial.println("        *                                                                               *");
 	Serial.println("        *********************************************************************************");
 	System_init();
@@ -104,6 +104,14 @@ void setup()
 
 	// RS485 musis spustit az tu, lebo ak ju das hore a ESP ceka na konnect wifi, a pridu nejake data na RS485, tak FreeRTOS =RESET  asi overflow;
 	// Serial1.begin(9600);
+
+	kontrolka.blink(200 /* time on */,
+						 200 /* time off */,
+						 1 /* cycles */,
+						 1000 /* pause between secuences */,
+						 0 /* secuences */,
+						 NULL /* function to call when finished */
+	);
 
 	xTaskCreatePinnedToCore(
 		 TWAI_RX_Task,			// Task function
@@ -136,17 +144,19 @@ void loop()
 	timer_1sek.update();
 	timer_10sek.update();
 	led.update();
+	kontrolka.update();
 }
 
 void Loop_1ms()
 {
 	static bool lenRaz = false;
 
-	if (lenRaz == false)
+	if (0) // digitalRead(Boot_pin) == 0) // if (lenRaz == false)
 	{
+		log_i("DOBRE PUSTI IDEMP POSLAT TEN CAN MSG");
 		delay(1000);
 		lenRaz = true;
-		for (u16 i = 0; i < 100; i++)
+		for (u16 i = 0; i < 1; i++)
 		{
 			twai_message_t message;
 			message.identifier = 345;
@@ -159,13 +169,45 @@ void Loop_1ms()
 			}
 
 			// Queue message for transmission
-			if (0) // twai_transmit(&message, pdMS_TO_TICKS(1000)) == ESP_OK)
+			if (twai_transmit(&message, pdMS_TO_TICKS(1000)) == ESP_OK)
 			{
+				log_i("CAN send OK for transmission\n");
 			}
 			else
 			{
-				//	log_i("Failed to queue message for transmission\n");
+				log_i("Failed to queue message for transmission\n");
+				{
+					twai_clear_transmit_queue();
+					twai_initiate_recovery();
+					twai_stop();
+					twai_start();
+				}
 			} /* code */
+		}
+	}
+
+	if (myTimer.CAN_prima_data)
+	{
+		if (--myTimer.CAN_prima_data == 0)
+		{
+			kontrolka.blink(200 /* time on */,
+								 200 /* time off */,
+								 1 /* cycles */,
+								 1000 /* pause between secuences */,
+								 0 /* secuences */,
+								 NULL /* function to call when finished */
+			);
+
+			{
+				twai_clear_transmit_queue();
+				twai_initiate_recovery();
+				twai_stop();
+				twai_start();
+			}
+			for (u8 i = 0; i < pocetDO; i++)
+			{
+				DO[i].output = false;
+			}
 		}
 	}
 
@@ -249,6 +291,18 @@ void Loop_1sek(void)
 						// Serial.print("DELTA PCF8563: ");
 						// Serial.println(delta);
 
+	if (myTimer.CAN_reinitDriver)
+	{
+		if (--myTimer.CAN_reinitDriver == 0)
+		{
+			twai_clear_transmit_queue();
+				twai_initiate_recovery();
+				twai_stop();
+				twai_start();
+				myTimer.CAN_reinitDriver = 10;
+		}
+	}
+
 	if (myTimer.Wifi_ON_timeout)
 	{
 		if (digitalRead(Boot_pin) != 0) // ak je jumper close, tak neodpocitavam cas
@@ -329,9 +383,21 @@ void Loop_1sek(void)
 	log_i("HEAP free:%s - CAN adresa: %u - Vstupy: %u - Vystupy: %u", locBuf, CANadresa, Obraz_DIN, Obraz_DO);
 	Serial.printf("HEAP free:%s - CAN adresa: %u - Vstupy: %u - Vystupy: %u\r\n", locBuf, CANadresa, Obraz_DIN, Obraz_DO);
 
-	String rr = "[1sek Loop] signal: " + (String)WiFi.RSSI() + "dBm" +
-					"  IN: " + Obraz_DIN + "  OUT: " + Obraz_DO + "  Wifi OFF za: " + myTimer.Wifi_ON_timeout + "\r\n ";
+	// String rr = "[1sek Loop] signal: " + (String)WiFi.RSSI() + "dBm" +
+	//				"  IN: " + Obraz_DIN + "  OUT: " + Obraz_DO + "  Wifi OFF za: " + myTimer.Wifi_ON_timeout + "\r\n ";
 
+	twai_status_info_t CANstatus_info;
+	twai_get_status_info(&CANstatus_info);
+	Serial.printf("CAN Tx err cnt :%lu\r\nmsg to TX :%lu\r\ntx failed :%lu\r\nbus err cnt :%lu\r\n",
+					  CANstatus_info.tx_error_counter, CANstatus_info.msgs_to_tx, CANstatus_info.tx_failed_count, CANstatus_info.bus_error_count);
+
+	String rr = "[1sek Loop]  IN: " + (String)Obraz_DIN + "  OUT: " + (String)Obraz_DO +
+					"  Wifi OFF za: " + (String)myTimer.Wifi_ON_timeout +
+					"\r\nCAN Tx err cnt : " + (String)CANstatus_info.tx_error_counter +
+					"\r\nCAN msg to TX  : " + (String)CANstatus_info.msgs_to_tx +
+					"\r\nCAN tx failed  : " + (String)CANstatus_info.tx_failed_count +
+					"\r\nCAN bus err cnt  : " + (String)CANstatus_info.bus_error_count +
+					"\r\n ";
 	DebugMsgToWebSocket(rr);
 }
 
@@ -544,6 +610,20 @@ void TWAI_RX_Task(void *arg)
 			{
 				if (opCode == 0 && message.rtr == 0) // nahodit Vystupy
 				{
+					if (myTimer.CAN_prima_data == 0)
+					{
+						kontrolka.blink(200 /* time on */,
+											 200 /* time off */,
+											 2 /* cycles */,
+											 1000 /* pause between secuences */,
+											 0 /* secuences */,
+											 NULL /* function to call when finished */
+						);
+					}
+
+					myTimer.CAN_prima_data = CAN_Rx_timeout;
+					myTimer.CAN_reinitDriver = 10;
+
 					for (u8 i = 0; i < pocetDO; i++)
 					{
 						if (isbit(message.data[0], i))

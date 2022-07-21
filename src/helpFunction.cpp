@@ -332,7 +332,7 @@ void System_init(void)
 	DO[output5].pin = DO5_pin;
 	DO[output6].pin = DO6_pin;
 	DO[output7].pin = DO7_pin;
-	DO[output8].pin = DO8_pin;
+	//DO[output8].pin = DO8_pin;
 
 	// pinMode(DI1_pin, OUTPUT);
 	// pinMode(DI2_pin, OUTPUT);

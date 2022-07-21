@@ -45,11 +45,12 @@
 
 
 #define pocetDIN 8
-#define pocetDO 8
+#define pocetDO 7
 #define filterTime_DI 3  //10ms loop
 #define pocetADR 7
 #define WDT_TIMEOUT 5
-#define firmware "ver202205011_2"
+#define firmware "ver202207021_1"
+#define CAN_Rx_timeout 5000; //ms
 
 
 //EEPROM adrese
